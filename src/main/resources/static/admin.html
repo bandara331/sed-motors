@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SED Motors — ERP Admin</title>
+<meta name="description" content="SED Motors Enterprise Admin ERP — Work Orders, Invoicing, Inventory, Suppliers, CRM, Audit.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<style>
+/* ═══════════════════════════════ TOKENS ═══════════════════════════════ */
+:root{
+  --sb:#0f172a; --sb2:#1e293b; --sb-t:#94a3b8; --sb-ta:#cbd5e1;
+  --bg:#f8fafc; --card:#ffffff;
+  --t1:#1e293b; --t2:#64748b; --t3:#94a3b8;
+  --bdr:#e2e8f0; --bdr2:#f1f5f9;
+  --orange:#f59e0b; --od:#d97706;
+  --green:#10b981; --red:#ef4444; --blue:#0ea5e9; --purple:#8b5cf6;
+  --sh: 0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+  --shh:0 6px 24px rgba(0,0,0,.10),0 2px 8px rgba(0,0,0,.06);
+  --r:12px; --sbw:256px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);display:flex;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+
+/* ═══════════════════════════════ ANIMATIONS ════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.55)}60%{box-shadow:0 0 0 7px rgba(16,185,129,0)}}
+@keyframes slideR{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.fu{animation:fadeUp .45s ease both} .s1{animation-delay:.05s} .s2{animation-delay:.1s}
+.s3{animation-delay:.15s} .s4{animation-delay:.2s} .s5{animation-delay:.25s}
+
+/* ═══════════════════════════════ SIDEBAR ═══════════════════════════════ */
+.sb{width:var(--sbw);background:var(--sb);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-brand{height:66px;display:flex;align-items:center;padding:0 22px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.sb-brand h1{color:#fff;font-size:18px;font-weight:800;letter-spacing:-.4px}
+.sb-brand h1 span{color:var(--orange)}
+.sb-nav{padding:16px 10px;flex:1}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:1.2px;color:rgba(148,163,184,.5);text-transform:uppercase;padding:0 8px;margin:14px 0 6px}
+.ni{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:8px;color:var(--sb-t);font-size:13.5px;font-weight:500;cursor:pointer;transition:background .16s,color .16s;text-decoration:none;border:none;background:none;width:100%;text-align:left;border-left:3px solid transparent;margin-bottom:1px}
+.ni svg,.ni .ico{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ni:hover{color:#fff;background:rgba(255,255,255,.04)}
+.ni.active{color:var(--orange);background:rgba(245,158,11,.1);border-left-color:var(--orange)}
+.ni.danger{color:#f87171}
+.ni.danger:hover{background:rgba(239,68,68,.08);color:#fca5a5}
+.sb-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.sb-user{display:flex;align-items:center;gap:11px}
+.sb-av{width:34px;height:34px;background:var(--orange);color:var(--sb);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+.sb-uname{font-size:13px;font-weight:600;color:#fff}
+.sb-urole{font-size:11px;color:var(--sb-t)}
+
+/* ═══════════════════════════════ MAIN ══════════════════════════════════ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* ═══════════ TOPBAR ═══════════ */
+.topbar{height:66px;background:var(--card);border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 26px;flex-shrink:0;z-index:10}
+.topbar-l{display:flex;align-items:center;gap:14px}
+.topbar-title{font-size:16px;font-weight:700}
+.live-pill{display:flex;align-items:center;gap:7px;padding:4px 12px;border-radius:20px;background:#f1f5f9;font-size:11.5px;font-weight:600;color:var(--t2)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.live-pill.off .live-dot{background:var(--red);animation:none}
+.topbar-r{display:flex;align-items:center;gap:10px}
+
+/* ═══════════ BUTTONS ══════════ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:8px;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;white-space:nowrap}
+.btn-primary{background:var(--orange);color:#fff}.btn-primary:hover{background:var(--od);transform:translateY(-1px)}
+.btn-outline{background:none;border:1px solid var(--bdr);color:var(--t1)}.btn-outline:hover{background:var(--bdr2)}
+.btn-ghost{background:none;border:none;color:var(--t2);padding:6px 10px}.btn-ghost:hover{background:var(--bdr2);color:var(--t1)}
+.btn-danger{background:#fef2f2;color:var(--red);border:1px solid #fecaca}.btn-danger:hover{background:#fee2e2}
+.btn-success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}.btn-success:hover{background:#dcfce7}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:6px}
+.btn-icon{padding:6px;border-radius:6px}.btn-icon svg{width:15px;height:15px}
+
+/* ═══════════ CONTENT ══════════ */
+.content{flex:1;overflow-y:auto;padding:24px}
+.section{display:none}.section.active{display:block;animation:fadeIn .2s ease}
+
+/* ═══════════ CARDS ════════════ */
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--bdr);box-shadow:var(--sh)}
+.card-h{padding:16px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-title{font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-b{padding:20px}
+
+/* ═══════════ STAT CARDS ═══════ */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:20px}
+.stat-card{background:var(--card);border-radius:var(--r);border:1px solid var(--bdr);padding:18px 20px;box-shadow:var(--sh);transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden;cursor:default}
+.stat-card:hover{transform:translateY(-3px) scale(1.01);box-shadow:var(--shh)}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:3px;background:var(--accent,var(--orange));transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.stat-card:hover::after{transform:scaleX(1)}
+.stat-lbl{font-size:11.5px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.stat-val{font-size:28px;font-weight:800;display:flex;align-items:center;gap:8px;color:var(--t1)}
+.stat-badge{font-size:12px;font-weight:600;padding:2px 8px;border-radius:12px;background:rgba(16,185,129,.1);color:var(--green)}
+
+/* ═══════════ CHARTS ═══════════ */
+.charts-row{display:grid;grid-template-columns:3fr 2fr;gap:18px;margin-bottom:20px}
+.chart-wrap{position:relative;height:250px}
+
+/* ═══════════ BOTTOM GRID ══════ */
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.scroll-list{max-height:280px;overflow-y:auto}
+
+/* ═══════════ ACTIVITY ═════════ */
+.act-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--bdr);animation:slideR .3s ease both}
+.act-item:last-child{border:none}
+.act-ico{width:30px;height:30px;background:rgba(245,158,11,.1);color:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+.act-title{font-size:13.5px;font-weight:500;margin-bottom:2px}
+.act-sub{font-size:11.5px;color:var(--t2)}
+
+/* ═══════════ ALERTS ═══════════ */
+.alert-row{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:#fef2f2;border-left:4px solid #fca5a5;border-radius:6px;margin-bottom:8px;transition:transform .2s}
+.alert-row:hover{transform:translateX(3px)}
+.alert-name{font-size:13px;font-weight:700;color:var(--red)}
+.alert-sub{font-size:11.5px;color:var(--t2);margin-top:2px}
+
+/* ═══════════ TABLE ═════════════ */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;background:var(--bdr2);border-bottom:1px solid var(--bdr);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--bdr);color:var(--t1);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+tr{transition:background .12s}
+
+/* ═══════════ BADGES ════════════ */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+.b-orange{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.b-blue  {background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.b-green {background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+.b-red   {background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.b-purple{background:#faf5ff;color:#6b21a8;border:1px solid #d8b4fe}
+.b-gray  {background:#f8fafc;color:#475569;border:1px solid #e2e8f0}
+
+/* ═══════════ STATUS MAPPING ═══ */
+.b-RECEIVED,.b-PENDING,.b-UNPAID{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.b-DIAGNOSING,.b-PARTIAL{background:#faf5ff;color:#6b21a8;border:1px solid #d8b4fe}
+.b-IN_PROGRESS,.b-CONFIRMED{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.b-READY{background:#ecfdf5;color:#065f46;border:1px solid #6ee7b7}
+.b-COMPLETED,.b-PAID{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+.b-CANCELLED{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+
+/* ═══════════ MODAL ═════════════ */
+.mo{position:fixed;inset:0;background:rgba(15,23,42,.42);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .22s,visibility .22s}
+.mo.open{opacity:1;visibility:visible}
+.mo-box{background:var(--card);border-radius:16px;width:560px;max-width:95vw;max-height:92vh;overflow-y:auto;padding:28px;transform:scale(.93);transition:transform .22s cubic-bezier(.34,1.56,.64,1);box-shadow:0 20px 60px rgba(0,0,0,.14)}
+.mo.open .mo-box{transform:scale(1)}
+.mo-title{font-size:17px;font-weight:700;margin-bottom:20px;color:var(--t1)}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:12px;font-weight:600;color:var(--t2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 13px;border:1px solid var(--bdr);border-radius:8px;font-family:inherit;font-size:13.5px;color:var(--t1);background:#fff;outline:none;transition:border-color .18s,box-shadow .18s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(245,158,11,.12)}
+.fg textarea{resize:vertical;min-height:70px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mo-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px;border-top:1px solid var(--bdr);padding-top:16px}
+
+/* ═══════════ TOAST ═════════════ */
+.toast-host{position:fixed;top:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:9px;pointer-events:none}
+.toast{background:var(--card);border-left:4px solid var(--orange);border-radius:10px;padding:13px 16px;display:flex;align-items:flex-start;gap:11px;box-shadow:0 8px 28px rgba(0,0,0,.12);animation:slideR .3s ease;min-width:270px;pointer-events:all}
+.toast.ok{border-left-color:var(--green)}.toast.err{border-left-color:var(--red)}
+.toast-ico{font-size:20px;margin-top:1px}
+.toast-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.toast-msg{font-size:12px;color:var(--t2)}
+
+/* ═══════════ SEARCH BOX ════════ */
+.search-box{display:flex;gap:8px;margin-bottom:16px}
+.search-box input{flex:1;padding:9px 14px;border:1px solid var(--bdr);border-radius:8px;font-family:inherit;font-size:13.5px;outline:none}
+.search-box input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(245,158,11,.12)}
+
+/* ═══════════ EMPTY ═════════════ */
+.empty{padding:40px 24px;text-align:center;color:var(--t2);font-size:13.5px}
+.empty-ico{font-size:38px;margin-bottom:10px;opacity:.35}
+
+/* ═══════════ SETTINGS ══════════ */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--bdr)}
+.setting-row:last-child{border:none}
+.setting-lbl{font-size:13.5px;font-weight:600}
+.setting-sub{font-size:12px;color:var(--t2);margin-top:2px}
+
+/* ═══════════ RESPONSIVE ════════ */
+@media(max-width:1200px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.charts-row,.bottom-row,.settings-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.stats-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════════════════ -->
+<aside class="sb">
+  <div class="sb-brand">
+    <h1>SED <span>Motors</span></h1>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-label">Main</div>
+    <button class="ni active" id="nav-dashboard"  onclick="go('dashboard')">📊 <span>Dashboard</span></button>
+    <button class="ni"        id="nav-workorders"  onclick="go('workorders')">🛠️ <span>Work Orders</span></button>
+    <button class="ni"        id="nav-parts"       onclick="go('parts')">📦 <span>Parts & Inventory</span></button>
+    <button class="ni"        id="nav-invoices"    onclick="go('invoices')">🧾 <span>Invoices & Billing</span></button>
+    <div class="sb-label">Management</div>
+    <button class="ni"        id="nav-suppliers"   onclick="go('suppliers')">🤝 <span>Suppliers</span></button>
+    <button class="ni"        id="nav-crm"         onclick="go('crm')">🚗 <span>Customer CRM</span></button>
+    <button class="ni"        id="nav-audit"       onclick="go('audit')">📜 <span>Audit & Settings</span></button>
+    <div class="sb-label">Account</div>
+    <button class="ni danger" onclick="logout()">🚪 <span>Logout</span></button>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-av" id="sb-av">ST</div>
+      <div>
+        <div class="sb-uname" id="sb-name">Sasmit Tejan</div>
+        <div class="sb-urole">Lead Admin</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════ MAIN ═══════════════════════════════════════ -->
+<div class="main">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-l">
+      <span class="topbar-title" id="pg-title">Dashboard Overview</span>
+      <div class="live-pill" id="live-pill"><div class="live-dot"></div><span id="live-txt">Live</span></div>
+    </div>
+    <div class="topbar-r" id="topbar-actions">
+      <button class="btn btn-outline btn-sm" onclick="loadData()">↺ Refresh</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ════════════════════ 1. DASHBOARD ════════════════════ -->
+    <div class="section active" id="sec-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card fu s1" style="--accent:var(--orange)"><div class="stat-lbl">Parts in Stock</div><div class="stat-val"><span id="d-parts">—</span></div></div>
+        <div class="stat-card fu s2" style="--accent:var(--blue)"><div class="stat-lbl">Total Bookings</div><div class="stat-val"><span id="d-bookings">—</span></div></div>
+        <div class="stat-card fu s3" style="--accent:var(--red)"><div class="stat-lbl">Pending Bookings</div><div class="stat-val"><span id="d-pending">—</span></div></div>
+        <div class="stat-card fu s4" style="--accent:var(--green)"><div class="stat-lbl">Active Work Orders</div><div class="stat-val"><span id="d-wo">—</span></div></div>
+        <div class="stat-card fu s5" style="--accent:var(--purple)"><div class="stat-lbl">Unpaid Invoices</div><div class="stat-val"><span id="d-unpaid">—</span></div></div>
+      </div>
+
+      <div class="charts-row fu s2">
+        <div class="card">
+          <div class="card-h"><span class="card-title">📈 Booking Trends (7 Days)</span></div>
+          <div class="card-b"><div class="chart-wrap"><canvas id="chartBook"></canvas></div></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><span class="card-title">🥧 Inventory by Category</span></div>
+          <div class="card-b"><div class="chart-wrap" id="chartInvWrap"><canvas id="chartInv"></canvas></div></div>
+        </div>
+      </div>
+
+      <div class="bottom-row fu s3">
+        <div class="card">
+          <div class="card-h">
+            <span class="card-title">⚡ Live Activity Feed</span>
+            <div class="live-pill" style="font-size:11px;padding:3px 10px"><div class="live-dot"></div><span>Real-time</span></div>
+          </div>
+          <div class="card-b" style="padding-top:4px">
+            <div class="scroll-list" id="act-feed"><div class="empty"><div class="empty-ico">📋</div>Loading…</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h">
+            <span class="card-title" style="color:var(--red)">⚠ Low Stock Alerts</span>
+            <span class="badge b-red" id="low-badge"></span>
+          </div>
+          <div class="card-b" style="padding-top:4px">
+            <div class="scroll-list" id="low-feed"><div class="empty"><div class="empty-ico">📦</div>Loading…</div></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /dashboard -->
+
+    <!-- ════════════════════ 2. WORK ORDERS ══════════════════ -->
+    <div class="section" id="sec-workorders">
+      <div class="card">
+        <div class="card-h">
+          <span class="card-title">🛠️ Work Orders & Service Bays</span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('mo-wo')">+ New Work Order</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Booking / Customer</th><th>Vehicle</th><th>Mechanic</th><th>Bay</th><th>Labor Hrs</th><th>Status</th><th>Parts Used</th><th>Actions</th></tr></thead>
+            <tbody id="wo-tbody"><tr><td colspan="9"><div class="empty"><div class="empty-ico">🛠️</div>Loading…</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════ 3. PARTS ════════════════════════ -->
+    <div class="section" id="sec-parts">
+      <div class="card">
+        <div class="card-h">
+          <span class="card-title">📦 Parts & Inventory</span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('mo-part')">+ Add Part</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Part Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Reorder?</th><th>Actions</th></tr></thead>
+            <tbody id="parts-tbody"><tr><td colspan="7"><div class="empty"><div class="empty-ico">📦</div>Loading…</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════ 4. INVOICES ═════════════════════ -->
+    <div class="section" id="sec-invoices">
+      <div class="card">
+        <div class="card-h">
+          <span class="card-title">🧾 Invoices & Billing</span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('mo-inv-gen')">+ Generate Invoice</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Work Order</th><th>Customer</th><th>Parts</th><th>Labor</th><th>Tax</th><th>Total</th><th>Payment</th><th>Method</th><th>Actions</th></tr></thead>
+            <tbody id="inv-tbody"><tr><td colspan="10"><div class="empty"><div class="empty-ico">🧾</div>Loading…</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════ 5. SUPPLIERS ════════════════════ -->
+    <div class="section" id="sec-suppliers">
+      <div class="card">
+        <div class="card-h">
+          <span class="card-title">🤝 Suppliers & Purchase Orders</span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('mo-sup')">+ Add Supplier</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Supplier Name</th><th>Contact</th><th>Phone</th><th>Email</th><th>Parts Supplied</th><th>Actions</th></tr></thead>
+            <tbody id="sup-tbody"><tr><td colspan="7"><div class="empty"><div class="empty-ico">🤝</div>Loading…</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════ 6. CRM ══════════════════════════ -->
+    <div class="section" id="sec-crm">
+      <div class="card" style="margin-bottom:18px">
+        <div class="card-h"><span class="card-title">🚗 Customer & Vehicle History Search</span></div>
+        <div class="card-b">
+          <div class="search-box">
+            <input id="crm-q" placeholder="Search by vehicle registration (e.g. AB-1234) or customer name…" onkeydown="if(event.key==='Enter')crmSearch()">
+            <button class="btn btn-primary" onclick="crmSearch()">🔍 Search</button>
+          </div>
+          <div id="crm-results"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════ 7. AUDIT & SETTINGS ═════════════ -->
+    <div class="section" id="sec-audit">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
+
+        <!-- Audit Log -->
+        <div class="card" style="grid-column:1/-1">
+          <div class="card-h"><span class="card-title">📜 System Audit Log</span><button class="btn btn-outline btn-sm" onclick="loadAudit()">↺ Refresh</button></div>
+          <div class="card-b" style="padding:0">
+            <div style="max-height:340px;overflow-y:auto">
+              <table>
+                <thead><tr><th>Timestamp</th><th>Actor</th><th>Action</th><th>Entity</th></tr></thead>
+                <tbody id="audit-tbody"><tr><td colspan="4"><div class="empty">Loading…</div></td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="card">
+          <div class="card-h"><span class="card-title">⚙️ Company Settings</span></div>
+          <div class="card-b">
+            <div class="setting-row"><div><div class="setting-lbl">Company Name</div><div class="setting-sub">SED Motors</div></div><button class="btn btn-outline btn-sm">Edit</button></div>
+            <div class="setting-row"><div><div class="setting-lbl">Labor Rate / Hour</div><div class="setting-sub">$50.00 (default)</div></div><button class="btn btn-outline btn-sm">Edit</button></div>
+            <div class="setting-row"><div><div class="setting-lbl">Tax Rate (VAT)</div><div class="setting-sub">10%</div></div><button class="btn btn-outline btn-sm">Edit</button></div>
+            <div class="setting-row"><div><div class="setting-lbl">Lead Developer</div><div class="setting-sub">Sasmit Tejan</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><span class="card-title">🗄️ System Operations</span></div>
+          <div class="card-b">
+            <div class="setting-row"><div><div class="setting-lbl">Database Status</div><div class="setting-sub">MySQL — Connected</div></div><span class="badge b-green">Online</span></div>
+            <div class="setting-row"><div><div class="setting-lbl">WebSocket</div><div class="setting-sub" id="ws-status-txt">Checking…</div></div><span class="badge b-blue" id="ws-status-badge">—</span></div>
+            <div class="setting-row"><div><div class="setting-lbl">Active Session</div><div class="setting-sub" id="session-email">—</div></div></div>
+            <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-outline btn-sm" onclick="toast('Backup','Database backup initiated (simulated).','ok')">💾 Backup DB</button>
+              <button class="btn btn-outline btn-sm" onclick="loadData()">↺ Reload All Data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ═══════════════════ MODALS ════════════════════════════════════════ -->
+
+<!-- New Work Order -->
+<div class="mo" id="mo-wo">
+  <div class="mo-box">
+    <div class="mo-title" id="mo-wo-title">🛠️ Create Work Order</div>
+    <div class="fr">
+      <div class="fg"><label>Booking #</label><select id="wo-booking" required></select></div>
+      <div class="fg"><label>Mechanic Name</label><input id="wo-mech" placeholder="e.g. John Silva" required></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Bay / Lift #</label><input id="wo-bay" placeholder="e.g. Bay 3"></div>
+      <div class="fg"><label>Labor Hours</label><input id="wo-hours" type="number" step="0.5" min="0" value="0" placeholder="0.0"></div>
+    </div>
+    <div class="fg"><label>Notes</label><textarea id="wo-notes" placeholder="Initial diagnosis, observations…"></textarea></div>
+    <div class="mo-actions">
+      <button class="btn btn-outline" onclick="closeModal('mo-wo')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitWO()">✓ Create Work Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Work Order Status -->
+<div class="mo" id="mo-wo-edit">
+  <div class="mo-box">
+    <div class="mo-title">✏️ Update Work Order</div>
+    <input type="hidden" id="wo-edit-id">
+    <div class="fr">
+      <div class="fg"><label>Status</label>
+        <select id="wo-edit-status">
+          <option>RECEIVED</option><option>DIAGNOSING</option><option>IN_PROGRESS</option><option>READY</option><option>COMPLETED</option>
+        </select>
+      </div>
+      <div class="fg"><label>Labor Hours</label><input id="wo-edit-hours" type="number" step="0.5" min="0"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Mechanic</label><input id="wo-edit-mech"></div>
+      <div class="fg"><label>Bay</label><input id="wo-edit-bay"></div>
+    </div>
+    <div class="fg"><label>Notes</label><textarea id="wo-edit-notes"></textarea></div>
+    <div class="mo-actions">
+      <button class="btn btn-outline" onclick="closeModal('mo-wo-edit')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitWOEdit()">✓ Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Part to Work Order -->
+<div class="mo" id="mo-wo-part">
+  <div class="mo-box">
+    <div class="mo-title">🔩 Add Part to Work Order #<span id="mo-wop-id"></span></div>
+    <input type="hidden" id="wop-wo-id">
+    <div class="fr">
+      <div class="fg"><label>Part</label><select id="wop-part-sel" required></select></div>
+      <div class="fg"><label>Quantity</label><input id="wop-qty" type="number" min="1" value="1" required></div>
+    </div>
+    <div class="mo-actions">
+      <button class="btn btn-outline" onclick="closeModal('mo-wo-part')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitWOPart()">✓ Add Part</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Part -->
+<div class="mo" id="mo-part">
+  <div class="mo-box">
+    <div class="mo-title" id="mo-part-title">📦 Add New Part</div>
+    <input type="hidden" id="p-id">
+    <div class="fr">
+      <div class="fg"><label>Part Name</label><input id="p-name" required placeholder="e.g. Brake Pad Set"></div>
+      <div class="fg"><label>Category</label>
+        <select id="p-cat" required>
+          <option value="">Select…</option>
+          <option>Brakes</option><option>Engine</option><option>Suspension</option>
+          <option>Electrical</option><option>Filters</option><option>Body</option>
+          <option>Tyres</option><option>Transmission</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Price ($)</label><input id="p-price" type="number" step="0.01" min="0" placeholder="0.00" required></div>
+      <div class="fg"><label>Stock Quantity</label><input id="p-stock" type="number" min="0" placeholder="0" required></div>
+    </div>
+    <div class="fg"><label>Description</label><textarea id="p-desc" placeholder="Optional…"></textarea></div>
+    <div class="mo-actions">
+      <button class="btn btn-outline" onclick="closeModal('mo-part')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitPart()">✓ Save Part</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generate Invoice -->
+<div class="mo" id="mo-inv-gen">
+  <div class="mo-box">
+    <div class="mo-title">🧾 Generate Invoice</div>
+    <div class="fg"><label>Work Order</label><select id="inv-wo-sel" required></select></div>
+    <div class="fg"><label>Notes (optional)</label><textarea id="inv-notes" placeholder="Payment terms, special instructions…"></textarea></div>
+    <div class="mo-actions">
+      <button class="btn btn-outline" onclick="closeModal('mo-inv-gen')">Cancel</button>
+      <button class="btn btn-primary" onclick="generateInvoice()">✓ Generate Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Supplier -->
+<div class="mo" id="mo-sup">
+  <div class="mo-box">
+    <div class="mo-title" id="mo-sup-title">🤝 Add Supplier</div>
+    <input type="hidden" id="sup-id">
+    <div class="fr">
+      <div class="fg"><label>Company Name</label><input id="sup-name" required></div>
+      <div class="fg"><label>Contact Person</label><input id="sup-cp"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Phone</label><input id="sup-ph" placeholder="+94…"></div>
+      <div class="fg"><label>Email</label><input id="sup-em" type="email"></div>
+    </div>
+    <div class="fg"><label>Address</label><input id="sup-addr"></div>
+    <div class="fg"><label>Parts / Products Supplied</label><textarea id="sup-parts" placeholder="Brake pads, filters, engine oil…"></textarea></div>
+    <div class="mo-actions">
+      <button class="btn btn-outline" onclick="closeModal('mo-sup')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitSupplier()">✓ Save Supplier</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast host -->
+<div class="toast-host" id="toast-host"></div>
+
+<!-- ═══════════════════ JAVASCRIPT ═══════════════════════════════════ -->
+<script>
+/* ── State ───────────────────────────────────────────────── */
+let partsData = [], bookingsData = [], workOrdersData = [], invoicesData = [], suppliersData = [];
+let chartBook = null, chartInv = null;
+let currentSection = 'dashboard';
+let adminName = 'Sasmit Tejan', adminEmail = '';
+
+/* ── Boot ────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', async () => {
+  await fetchProfile();
+  await loadData();
+  connectWS();
+});
+
+/* ── Profile ─────────────────────────────────────────────── */
+async function fetchProfile() {
+  try {
+    const r = await fetch('/api/auth/me', {credentials:'include'});
+    if (r.status===401||r.status===403){window.location.href='/admin-login.html';return;}
+    if (r.ok && (r.headers.get('content-type')||'').includes('json')) {
+      const u = await r.json();
+      adminName  = u.name || 'Sasmit Tejan';
+      adminEmail = u.email || '';
+      document.getElementById('sb-name').textContent = adminName;
+      document.getElementById('sb-av').textContent   = adminName.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+      const sel = document.getElementById('session-email');
+      if (sel) sel.textContent = adminEmail;
+    }
+  } catch(e){console.warn('Profile:',e)}
+}
+
+/* ── Load All Data ───────────────────────────────────────── */
+async function loadData() {
+  try {
+    const [pr, br, wr, ir, sr] = await Promise.all([
+      safeGet('/api/parts'),
+      safeGet('/api/bookings'),
+      safeGet('/api/work-orders'),
+      safeGet('/api/invoices'),
+      safeGet('/api/suppliers')
+    ]);
+    partsData       = pr  || [];
+    bookingsData    = br  || [];
+    workOrdersData  = wr  || [];
+    invoicesData    = ir  || [];
+    suppliersData   = sr  || [];
+    renderAll();
+  } catch(e) {
+    console.error('Load error:', e);
+    toast('Load Error','Could not reach server. Check Spring Boot is running.','err');
+  }
+}
+
+async function safeGet(url) {
+  const r = await fetch(url, {credentials:'include'});
+  if (r.status===401||r.status===403){window.location.href='/admin-login.html';return null;}
+  if (!r.ok) return null;
+  const ct = r.headers.get('content-type')||'';
+  return ct.includes('json') ? r.json() : null;
+}
+
+function renderAll() {
+  renderDashboard();
+  if (currentSection==='workorders') renderWOTable();
+  if (currentSection==='parts')      renderPartsTable();
+  if (currentSection==='invoices')   renderInvTable();
+  if (currentSection==='suppliers')  renderSupTable();
+}
+
+/* ── Dashboard ───────────────────────────────────────────── */
+function renderDashboard() {
+  const pending  = bookingsData.filter(b=>b.status==='PENDING').length;
+  const activeWO = workOrdersData.filter(w=>w.status!=='COMPLETED').length;
+  const unpaid   = invoicesData.filter(i=>i.paymentStatus==='UNPAID').length;
+  animN('d-parts',    partsData.length);
+  animN('d-bookings', bookingsData.length);
+  animN('d-pending',  pending);
+  animN('d-wo',       activeWO);
+  animN('d-unpaid',   unpaid);
+  renderBookChart();
+  renderInvChart();
+  renderActivity();
+  renderLowStock();
+}
+
+function animN(id, end, dur=800) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let start = null;
+  const step = ts => {
+    if (!start) start = ts;
+    const p = Math.min((ts-start)/dur, 1);
+    el.textContent = Math.floor(p*end).toLocaleString();
+    if (p<1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function renderBookChart() {
+  const ctx = document.getElementById('chartBook');
+  if (!ctx) return;
+  if (chartBook) {chartBook.destroy();chartBook=null;}
+  const n = bookingsData.length;
+  const pts = [12,8,5,2,0,-3,-5].map(o=>Math.max(0,n-o));
+  chartBook = new Chart(ctx, {
+    type:'line',
+    data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+      datasets:[{label:'Bookings',data:pts,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.08)',
+        borderWidth:3,pointBackgroundColor:'#fff',pointBorderColor:'#f59e0b',pointBorderWidth:2,
+        pointRadius:5,fill:true,tension:.4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true,ticks:{precision:0},grid:{color:'rgba(0,0,0,.05)'}},x:{grid:{display:false}}}}
+  });
+}
+
+function renderInvChart() {
+  const wrap = document.getElementById('chartInvWrap');
+  if (!wrap) return;
+  if (chartInv) {chartInv.destroy();chartInv=null;}
+  const cats={};
+  partsData.forEach(p=>{const c=p.category||'Other';cats[c]=(cats[c]||0)+(p.stockQuantity||0);});
+  const lbls=Object.keys(cats), vals=Object.values(cats);
+  if (!lbls.length){wrap.innerHTML='<div class="empty"><div class="empty-ico">🥧</div>No data yet.</div>';return;}
+  if (!document.getElementById('chartInv')) wrap.innerHTML='<div class="chart-wrap"><canvas id="chartInv"></canvas></div>';
+  chartInv = new Chart(document.getElementById('chartInv'),{
+    type:'doughnut',
+    data:{labels:lbls,datasets:[{data:vals,backgroundColor:['#0f172a','#f59e0b','#38bdf8','#94a3b8','#f97316','#10b981'],borderWidth:0,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'right',labels:{boxWidth:11,padding:14,font:{family:'Inter',size:12}}}}}
+  });
+}
+
+function renderActivity() {
+  const host = document.getElementById('act-feed');
+  if (!host) return;
+  const items = [...bookingsData].slice(0,10);
+  if (!items.length){host.innerHTML='<div class="empty"><div class="empty-ico">📋</div>No bookings yet.</div>';return;}
+  host.innerHTML = items.map((b,i)=>`
+    <div class="act-item" style="animation-delay:${i*.06}s">
+      <div class="act-ico">📅</div>
+      <div><div class="act-title">Booking from <strong>${h(b.customerName)}</strong></div>
+           <div class="act-sub">${h(b.serviceType)} &bull; ${h(b.preferredDate||'TBD')} &bull; <span class="badge b-${b.status}">${b.status}</span></div></div>
+    </div>`).join('');
+}
+
+function renderLowStock() {
+  const host  = document.getElementById('low-feed');
+  const badge = document.getElementById('low-badge');
+  if (!host) return;
+  const low = partsData.filter(p=>(p.stockQuantity||0)<10);
+  if (badge) badge.textContent = low.length?`${low.length} items`:'';
+  if (!partsData.length){host.innerHTML='<div class="empty"><div class="empty-ico">📦</div>No parts loaded.</div>';return;}
+  if (!low.length){host.innerHTML='<div class="empty" style="color:var(--green)"><div class="empty-ico">✅</div>All stock levels healthy!</div>';return;}
+  host.innerHTML = low.map(p=>`
+    <div class="alert-row">
+      <div><div class="alert-name">${h(p.name)}</div><div class="alert-sub">${p.stockQuantity} units &bull; ${h(p.category||'—')}</div></div>
+      <button class="btn btn-danger btn-sm" onclick="openEditPart(${p.id})">Restock</button>
+    </div>`).join('');
+}
+
+/* ── Work Orders ─────────────────────────────────────────── */
+function renderWOTable() {
+  const tb = document.getElementById('wo-tbody');
+  if (!tb) return;
+  if (!workOrdersData.length){tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-ico">🛠️</div>No work orders yet.</div></td></tr>';return;}
+  tb.innerHTML = workOrdersData.map(wo=>`
+    <tr>
+      <td style="color:var(--t2);font-size:11px">#${wo.id}</td>
+      <td><strong>#${wo.booking?.id}</strong> — ${h(wo.booking?.customerName||'?')}</td>
+      <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h(wo.booking?.vehicleDetails||'—')}</td>
+      <td>${h(wo.mechanicName)}</td>
+      <td>${h(wo.bayNumber||'—')}</td>
+      <td>${wo.laborHours||0}h</td>
+      <td><span class="badge b-${wo.status}">${wo.status}</span></td>
+      <td><button class="btn btn-outline btn-sm" onclick="openWOPart(${wo.id})">🔩 Parts</button></td>
+      <td>
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-outline btn-sm" onclick="openEditWO(${wo.id})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="generateInvoiceFor(${wo.id})">🧾</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+async function submitWO() {
+  const bookingId = document.getElementById('wo-booking').value;
+  if (!bookingId) {toast('Error','Select a booking.','err');return;}
+  const body = {bookingId, mechanicName:document.getElementById('wo-mech').value.trim()||'Unassigned',
+                bayNumber:document.getElementById('wo-bay').value.trim(),
+                laborHours:document.getElementById('wo-hours').value,
+                notes:document.getElementById('wo-notes').value};
+  const r = await apiPost('/api/work-orders', body);
+  if (r) {workOrdersData.unshift(r);renderWOTable();renderDashboard();closeModal('mo-wo');toast('Work Order Created','WO #'+r.id+' created.','ok');}
+}
+
+function openEditWO(id) {
+  const wo = workOrdersData.find(w=>w.id===id);
+  if (!wo) return;
+  document.getElementById('wo-edit-id').value    = id;
+  document.getElementById('wo-edit-status').value = wo.status;
+  document.getElementById('wo-edit-hours').value  = wo.laborHours||0;
+  document.getElementById('wo-edit-mech').value   = wo.mechanicName||'';
+  document.getElementById('wo-edit-bay').value    = wo.bayNumber||'';
+  document.getElementById('wo-edit-notes').value  = wo.notes||'';
+  openModal('mo-wo-edit');
+}
+
+async function submitWOEdit() {
+  const id = document.getElementById('wo-edit-id').value;
+  const body = {status:document.getElementById('wo-edit-status').value,
+                laborHours:document.getElementById('wo-edit-hours').value,
+                mechanicName:document.getElementById('wo-edit-mech').value,
+                bayNumber:document.getElementById('wo-edit-bay').value,
+                notes:document.getElementById('wo-edit-notes').value};
+  const r = await apiPut('/api/work-orders/'+id+'/status', body);
+  if (r) {workOrdersData = workOrdersData.map(w=>w.id===r.id?r:w);renderWOTable();renderDashboard();closeModal('mo-wo-edit');toast('Updated','Work Order #'+id+' updated.','ok');}
+}
+
+function openWOPart(woId) {
+  document.getElementById('wop-wo-id').value = woId;
+  document.getElementById('mo-wop-id').textContent = woId;
+  // Populate parts select
+  const sel = document.getElementById('wop-part-sel');
+  sel.innerHTML = partsData.map(p=>`<option value="${p.id}">${h(p.name)} (Stock: ${p.stockQuantity}) — $${parseFloat(p.price).toFixed(2)}</option>`).join('');
+  openModal('mo-wo-part');
+}
+
+async function submitWOPart() {
+  const woId   = document.getElementById('wop-wo-id').value;
+  const partId = document.getElementById('wop-part-sel').value;
+  const qty    = document.getElementById('wop-qty').value;
+  const r = await fetch('/api/work-orders/'+woId+'/parts',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({partId,quantity:qty})});
+  if (r.ok) {
+    await loadData();
+    closeModal('mo-wo-part');
+    toast('Part Added','Part added to Work Order #'+woId+' and stock deducted.','ok');
+  } else {
+    const msg = await r.text();
+    toast('Error', msg||'Failed to add part.','err');
+  }
+}
+
+async function generateInvoiceFor(woId) {
+  if (!confirm('Generate invoice for Work Order #'+woId+'?')) return;
+  const r = await fetch('/api/invoices/work-order/'+woId,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:'{}'});
+  const data = r.ok ? await r.json() : null;
+  if (data) {
+    invoicesData.unshift(data);
+    renderDashboard();
+    toast('Invoice Generated','Invoice #'+data.id+' created. Total: $'+parseFloat(data.grandTotal).toFixed(2),'ok');
+    go('invoices');
+  } else {
+    const t = await r.text().catch(()=>'');
+    toast('Error', t||'Could not generate invoice.','err');
+  }
+}
+
+/* ── Parts ───────────────────────────────────────────────── */
+function renderPartsTable() {
+  const tb = document.getElementById('parts-tbody');
+  if (!tb) return;
+  if (!partsData.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-ico">📦</div>No parts yet.</div></td></tr>';return;}
+  tb.innerHTML = partsData.map(p=>`
+    <tr>
+      <td style="color:var(--t2);font-size:11px">#${p.id}</td>
+      <td><strong>${h(p.name)}</strong></td>
+      <td><span class="badge b-gray">${h(p.category||'—')}</span></td>
+      <td>$${parseFloat(p.price||0).toFixed(2)}</td>
+      <td><span class="badge ${p.stockQuantity<10?'b-red':'b-green'}">${p.stockQuantity}</span></td>
+      <td>${p.stockQuantity<5?'<span class="badge b-red">⚠ Reorder</span>':p.stockQuantity<10?'<span class="badge b-orange">Low</span>':'<span class="badge b-green">OK</span>'}</td>
+      <td><div style="display:flex;gap:5px">
+        <button class="btn btn-outline btn-sm" onclick="openEditPart(${p.id})">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deletePart(${p.id})">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function openAddPart() {
+  document.getElementById('mo-part-title').textContent='📦 Add New Part';
+  document.getElementById('p-id').value=''; document.getElementById('p-name').value='';
+  document.getElementById('p-cat').value=''; document.getElementById('p-price').value='';
+  document.getElementById('p-stock').value=''; document.getElementById('p-desc').value='';
+  openModal('mo-part');
+}
+
+function openEditPart(id) {
+  const p = partsData.find(x=>x.id===id);
+  if (!p) return;
+  document.getElementById('mo-part-title').textContent='✏️ Edit Part';
+  document.getElementById('p-id').value    = p.id;
+  document.getElementById('p-name').value  = p.name;
+  document.getElementById('p-cat').value   = p.category;
+  document.getElementById('p-price').value = p.price;
+  document.getElementById('p-stock').value = p.stockQuantity;
+  document.getElementById('p-desc').value  = p.description||'';
+  openModal('mo-part');
+}
+
+async function submitPart() {
+  const id = document.getElementById('p-id').value;
+  const body = {name:document.getElementById('p-name').value.trim(),category:document.getElementById('p-cat').value,
+                price:parseFloat(document.getElementById('p-price').value),
+                stockQuantity:parseInt(document.getElementById('p-stock').value),
+                description:document.getElementById('p-desc').value.trim()};
+  const r = id ? await apiPut('/api/parts/'+id, body) : await apiPost('/api/parts', body);
+  if (r) {
+    partsData = id ? partsData.map(p=>p.id===r.id?r:p) : [r,...partsData];
+    renderPartsTable();renderDashboard();closeModal('mo-part');
+    toast(id?'Part Updated':'Part Added','"'+r.name+'" saved.','ok');
+  }
+}
+
+async function deletePart(id) {
+  const p = partsData.find(x=>x.id===id);
+  if (!p||!confirm('Delete "'+p.name+'"?')) return;
+  const r = await fetch('/api/parts/'+id,{method:'DELETE',credentials:'include'});
+  if (r.ok) {partsData=partsData.filter(x=>x.id!==id);renderPartsTable();renderDashboard();toast('Deleted','"'+p.name+'" removed.','ok');}
+  else toast('Error','Could not delete part.','err');
+}
+
+/* ── Invoices ────────────────────────────────────────────── */
+function renderInvTable() {
+  const tb = document.getElementById('inv-tbody');
+  if (!tb) return;
+  if (!invoicesData.length){tb.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-ico">🧾</div>No invoices yet.</div></td></tr>';return;}
+  tb.innerHTML = invoicesData.map(inv=>`
+    <tr>
+      <td style="color:var(--t2);font-size:11px">#${inv.id}</td>
+      <td>WO #${inv.workOrder?.id||'—'}</td>
+      <td>${h(inv.workOrder?.booking?.customerName||'—')}</td>
+      <td>$${parseFloat(inv.partsTotal||0).toFixed(2)}</td>
+      <td>$${parseFloat(inv.laborTotal||0).toFixed(2)}</td>
+      <td>$${parseFloat(inv.taxAmount||0).toFixed(2)}</td>
+      <td><strong>$${parseFloat(inv.grandTotal||0).toFixed(2)}</strong></td>
+      <td>
+        <select class="btn btn-outline btn-sm" onchange="updateInvPayStatus(${inv.id},this.value)" style="cursor:pointer">
+          <option value="UNPAID"  ${inv.paymentStatus==='UNPAID'?'selected':''}>Unpaid</option>
+          <option value="PARTIAL" ${inv.paymentStatus==='PARTIAL'?'selected':''}>Partial</option>
+          <option value="PAID"    ${inv.paymentStatus==='PAID'?'selected':''}>Paid</option>
+        </select>
+      </td>
+      <td>
+        <select class="btn btn-outline btn-sm" onchange="updateInvPayMethod(${inv.id},this.value)" style="cursor:pointer">
+          <option value="NONE"   ${inv.paymentMethod==='NONE'?'selected':''}>—</option>
+          <option value="CASH"   ${inv.paymentMethod==='CASH'?'selected':''}>Cash</option>
+          <option value="CARD"   ${inv.paymentMethod==='CARD'?'selected':''}>Card</option>
+          <option value="ONLINE" ${inv.paymentMethod==='ONLINE'?'selected':''}>Online</option>
+        </select>
+      </td>
+      <td><button class="btn btn-outline btn-sm" onclick="printInv(${inv.id})">🖨️ Print</button></td>
+    </tr>`).join('');
+}
+
+async function updateInvPayStatus(id, status) {
+  const inv = invoicesData.find(i=>i.id===id);
+  const method = inv?.paymentMethod||'NONE';
+  const r = await apiPut('/api/invoices/'+id+'/payment',{paymentStatus:status,paymentMethod:method});
+  if (r){invoicesData=invoicesData.map(i=>i.id===r.id?r:i);renderDashboard();toast('Invoice Updated','Payment status → '+status,'ok');}
+}
+
+async function updateInvPayMethod(id, method) {
+  const inv = invoicesData.find(i=>i.id===id);
+  const status = inv?.paymentStatus||'UNPAID';
+  const r = await apiPut('/api/invoices/'+id+'/payment',{paymentStatus:status,paymentMethod:method});
+  if (r){invoicesData=invoicesData.map(i=>i.id===r.id?r:i);toast('Updated','Payment method → '+method,'ok');}
+}
+
+async function generateInvoice() {
+  const woId = document.getElementById('inv-wo-sel').value;
+  const notes = document.getElementById('inv-notes').value;
+  if (!woId){toast('Error','Select a work order.','err');return;}
+  const r = await fetch('/api/invoices/work-order/'+woId,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({notes})});
+  const data = r.ok ? await r.json() : null;
+  if (data){invoicesData.unshift(data);renderInvTable();renderDashboard();closeModal('mo-inv-gen');toast('Invoice Generated','#'+data.id+' — $'+parseFloat(data.grandTotal).toFixed(2),'ok');}
+  else{const t=await r.text().catch(()=>'');toast('Error',t||'Failed.','err');}
+}
+
+function printInv(id) {
+  window.open('/api/invoices/'+id+'/print','_blank');
+}
+
+/* ── Suppliers ───────────────────────────────────────────── */
+function renderSupTable() {
+  const tb = document.getElementById('sup-tbody');
+  if (!tb) return;
+  if (!suppliersData.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-ico">🤝</div>No suppliers yet.</div></td></tr>';return;}
+  tb.innerHTML = suppliersData.map(s=>`
+    <tr>
+      <td style="color:var(--t2);font-size:11px">#${s.id}</td>
+      <td><strong>${h(s.name)}</strong></td>
+      <td>${h(s.contactPerson||'—')}</td>
+      <td>${h(s.phone||'—')}</td>
+      <td>${h(s.email||'—')}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h(s.partsSupplied||'—')}</td>
+      <td><div style="display:flex;gap:5px">
+        <button class="btn btn-outline btn-sm" onclick="openEditSup(${s.id})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="draftPO(${s.id})">📋 PO</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSup(${s.id})">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function openAddSup() {
+  document.getElementById('mo-sup-title').textContent='🤝 Add Supplier';
+  document.getElementById('sup-id').value=''; ['sup-name','sup-cp','sup-ph','sup-em','sup-addr','sup-parts'].forEach(id=>document.getElementById(id).value='');
+  openModal('mo-sup');
+}
+
+function openEditSup(id) {
+  const s = suppliersData.find(x=>x.id===id);
+  if (!s) return;
+  document.getElementById('mo-sup-title').textContent='✏️ Edit Supplier';
+  document.getElementById('sup-id').value    = s.id;
+  document.getElementById('sup-name').value  = s.name||'';
+  document.getElementById('sup-cp').value    = s.contactPerson||'';
+  document.getElementById('sup-ph').value    = s.phone||'';
+  document.getElementById('sup-em').value    = s.email||'';
+  document.getElementById('sup-addr').value  = s.address||'';
+  document.getElementById('sup-parts').value = s.partsSupplied||'';
+  openModal('mo-sup');
+}
+
+async function submitSupplier() {
+  const id = document.getElementById('sup-id').value;
+  const body = {name:document.getElementById('sup-name').value.trim(),
+                contactPerson:document.getElementById('sup-cp').value.trim(),
+                phone:document.getElementById('sup-ph').value.trim(),
+                email:document.getElementById('sup-em').value.trim(),
+                address:document.getElementById('sup-addr').value.trim(),
+                partsSupplied:document.getElementById('sup-parts').value.trim()};
+  const r = id ? await apiPut('/api/suppliers/'+id, body) : await apiPost('/api/suppliers', body);
+  if (r){
+    suppliersData = id ? suppliersData.map(s=>s.id===r.id?r:s) : [...suppliersData,r];
+    renderSupTable(); closeModal('mo-sup');
+    toast(id?'Supplier Updated':'Supplier Added','"'+r.name+'" saved.','ok');
+  }
+}
+
+async function deleteSup(id) {
+  const s = suppliersData.find(x=>x.id===id);
+  if (!s||!confirm('Delete supplier "'+s.name+'"?')) return;
+  const r = await fetch('/api/suppliers/'+id,{method:'DELETE',credentials:'include'});
+  if (r.ok){suppliersData=suppliersData.filter(x=>x.id!==id);renderSupTable();toast('Deleted','"'+s.name+'" removed.','ok');}
+  else toast('Error','Could not delete.','err');
+}
+
+function draftPO(id) {
+  const s = suppliersData.find(x=>x.id===id);
+  const low = partsData.filter(p=>(p.stockQuantity||0)<5);
+  const poHTML = `<!DOCTYPE html><html><head><title>Purchase Order</title>
+    <style>body{font-family:Arial;margin:40px;color:#1e293b}h1{color:#0f172a}
+    table{width:100%;border-collapse:collapse;margin:20px 0}
+    th{background:#0f172a;color:#fff;padding:10px}td{padding:8px;border-bottom:1px solid #eee}
+    .btn{padding:10px 24px;background:#f59e0b;border:none;border-radius:6px;font-weight:700;cursor:pointer;display:inline-block;margin-bottom:20px}
+    </style></head><body>
+    <div onclick="window.print()" class="btn">🖨 Print / Save PDF</div>
+    <h1>PURCHASE ORDER — SED Motors</h1>
+    <p><strong>Supplier:</strong> ${h(s?.name||'N/A')}</p>
+    <p><strong>Contact:</strong> ${h(s?.contactPerson||'—')} | ${h(s?.phone||'—')} | ${h(s?.email||'—')}</p>
+    <table><thead><tr><th>Part Name</th><th>Category</th><th>Current Stock</th><th>Qty to Order</th></tr></thead>
+    <tbody>${low.map(p=>`<tr><td>${h(p.name)}</td><td>${h(p.category||'—')}</td><td>${p.stockQuantity}</td><td>20</td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center">No low-stock items.</td></tr>'}
+    </tbody></table></body></html>`;
+  const w = window.open('','_blank');
+  w.document.write(poHTML);
+  w.document.close();
+}
+
+/* ── CRM ─────────────────────────────────────────────────── */
+async function crmSearch() {
+  const q = document.getElementById('crm-q').value.trim();
+  if (!q){toast('Search','Enter a registration or customer name.','err');return;}
+  const r = await fetch('/api/audit-logs/vehicle-history?registration='+encodeURIComponent(q),{credentials:'include'});
+  const res = document.getElementById('crm-results');
+  if (!r.ok){res.innerHTML='<div class="empty">Search failed.</div>';return;}
+  const data = await r.json();
+  if (!data.length){res.innerHTML='<div class="empty"><div class="empty-ico">🚗</div>No records found for "'+h(q)+'".</div>';return;}
+  res.innerHTML = `<div class="tbl-wrap"><table>
+    <thead><tr><th>#</th><th>Customer</th><th>Phone</th><th>Vehicle</th><th>Registration</th><th>Service</th><th>Date</th><th>Status</th></tr></thead>
+    <tbody>${data.map(b=>`<tr>
+      <td>#${b.id}</td><td><strong>${h(b.customerName)}</strong></td><td>${h(b.phone||'—')}</td>
+      <td>${h(b.vehicleDetails||'—')}</td><td>${h(b.vehicleRegistration||'—')}</td>
+      <td>${h(b.serviceType||'—')}</td><td>${h(b.preferredDate||'—')}</td>
+      <td><span class="badge b-${b.status}">${b.status}</span></td>
+    </tr>`).join('')}</tbody></table></div>`;
+}
+
+/* ── Audit Log ───────────────────────────────────────────── */
+async function loadAudit() {
+  const data = await safeGet('/api/audit-logs');
+  const tb   = document.getElementById('audit-tbody');
+  if (!tb) return;
+  if (!data||!data.length){tb.innerHTML='<tr><td colspan="4"><div class="empty">No audit entries yet.</div></td></tr>';return;}
+  tb.innerHTML = data.map(l=>`
+    <tr>
+      <td style="font-size:12px;color:var(--t2);white-space:nowrap">${l.timestamp?l.timestamp.replace('T',' ').substring(0,19):'—'}</td>
+      <td><strong>${h(l.actorName)}</strong></td>
+      <td>${h(l.action)}</td>
+      <td><span class="badge b-gray">${h(l.entityType||'—')}</span></td>
+    </tr>`).join('');
+}
+
+/* ── Tab Switching ───────────────────────────────────────── */
+const tabMeta = {
+  dashboard: 'Dashboard Overview',
+  workorders:'Work Orders & Service Bays',
+  parts:     'Parts & Inventory',
+  invoices:  'Invoices & Billing',
+  suppliers: 'Suppliers & Purchase Orders',
+  crm:       'Customer & Vehicle CRM',
+  audit:     'Audit Logs & Settings'
+};
+
+function go(tab) {
+  currentSection = tab;
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+tab).classList.add('active');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const ni = document.getElementById('nav-'+tab);
+  if (ni) ni.classList.add('active');
+  document.getElementById('pg-title').textContent = tabMeta[tab]||tab;
+
+  if (tab==='workorders') { populateBookingSelect(); renderWOTable(); }
+  if (tab==='parts')      renderPartsTable();
+  if (tab==='invoices')   { populateWOSelect(); renderInvTable(); }
+  if (tab==='suppliers')  renderSupTable();
+  if (tab==='audit')      loadAudit();
+}
+
+function populateBookingSelect() {
+  const sel = document.getElementById('wo-booking');
+  sel.innerHTML = '<option value="">— Select Booking —</option>' +
+    bookingsData.map(b=>`<option value="${b.id}">#${b.id} — ${h(b.customerName)} (${h(b.serviceType)})</option>`).join('');
+}
+
+function populateWOSelect() {
+  const sel = document.getElementById('inv-wo-sel');
+  const existingWoIds = invoicesData.map(i=>i.workOrder?.id);
+  const eligible = workOrdersData.filter(w=>!existingWoIds.includes(w.id));
+  sel.innerHTML = '<option value="">— Select Work Order —</option>' +
+    eligible.map(w=>`<option value="${w.id}">#${w.id} — ${h(w.booking?.customerName||'?')} (${w.status})</option>`).join('');
+}
+
+/* ── WebSocket ───────────────────────────────────────────── */
+function connectWS() {
+  try {
+    const sock = new SockJS('/ws');
+    const client = Stomp.over(sock);
+    client.debug = null;
+    client.connect({}, ()=>{
+      setLive(true);
+      client.subscribe('/topic/admin-notifications', msg=>{
+        try {
+          const b = JSON.parse(msg.body);
+          bookingsData.unshift(b);
+          renderDashboard();
+          toast('New Booking!', b.customerName+' — '+b.serviceType,'ok');
+        } catch(e){}
+      });
+    }, ()=>{setLive(false);setTimeout(connectWS,5000);});
+  } catch(e){ setLive(false); }
+}
+
+function setLive(on) {
+  const pill=document.getElementById('live-pill');
+  const txt =document.getElementById('live-txt');
+  const ws  =document.getElementById('ws-status-badge');
+  const wst =document.getElementById('ws-status-txt');
+  if(pill) pill.classList.toggle('off',!on);
+  if(txt)  txt.textContent = on?'Live':'Reconnecting…';
+  if(ws)   ws.textContent  = on?'Connected':'Disconnected';
+  if(ws)   ws.className    = 'badge '+(on?'b-green':'b-red');
+  if(wst)  wst.textContent = on?'SockJS/STOMP active':'Attempting reconnect…';
+}
+
+/* ── Modal Helpers ───────────────────────────────────────── */
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+
+/* ── API Helpers ─────────────────────────────────────────── */
+async function apiPost(url, body) {
+  const r = await fetch(url,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if (!r.ok){const t=await r.text().catch(()=>'Error');toast('Error',t,'err');return null;}
+  return r.json();
+}
+async function apiPut(url, body) {
+  const r = await fetch(url,{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if (!r.ok){const t=await r.text().catch(()=>'Error');toast('Error',t,'err');return null;}
+  return r.json();
+}
+
+/* ── Toast ───────────────────────────────────────────────── */
+function toast(title, msg, type='') {
+  const icons={'ok':'✅','err':'❌','':'🔔'};
+  const host=document.getElementById('toast-host');
+  const el=document.createElement('div');
+  el.className='toast '+(type==='ok'?'ok':type==='err'?'err':'');
+  el.innerHTML=`<div class="toast-ico">${icons[type]||'🔔'}</div><div><div class="toast-title">${h(title)}</div><div class="toast-msg">${h(msg)}</div></div>`;
+  host.appendChild(el);
+  setTimeout(()=>{el.style.transition='opacity .4s,transform .4s';el.style.opacity='0';el.style.transform='translateX(50px)';setTimeout(()=>el.remove(),400);},5000);
+}
+
+/* ── Security ────────────────────────────────────────────── */
+function h(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+async function logout(){try{await fetch('/api/auth/logout',{method:'POST',credentials:'include'})}catch{}; window.location.href='/index.html'}
+
+/* ── Wire up modal "Add Part" button from parts tab ──────── */
+document.getElementById('nav-parts')?.addEventListener('click',()=>{
+  const topBtn = document.getElementById('topbar-actions');
+  if (topBtn) topBtn.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openAddPart()">+ Add Part</button>`;
+});
+</script>
+</body>
+</html>

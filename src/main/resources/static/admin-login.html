@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SED Motors — Admin Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0f2942;
+      --navy-light: #1d3f60;
+      --steel: #3b5a76;
+      --amber: #f0a23b;
+      --amber-dark: #d6872a;
+      --bg: #f7f8fa;
+      --white: #ffffff;
+      --text: #1c2733;
+      --muted: #5c6b7a;
+      --border: #e3e7ec;
+      --radius: 10px;
+      --shadow: 0 4px 18px rgba(15, 41, 66, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .portal-wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
+      padding: 20px;
+    }
+
+    /* Logo */
+    .portal-logo {
+      text-align: center;
+      margin-bottom: 32px;
+      animation: fadeDown 0.6s ease;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--amber);
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 12px rgba(240, 162, 59, 0.3);
+    }
+
+    .logo-icon svg { width: 32px; height: 32px; color: var(--navy); }
+
+    .portal-logo h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--white);
+    }
+
+    .portal-logo p {
+      font-size: 13px;
+      color: var(--amber);
+      margin-top: 4px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* Card */
+    .portal-card {
+      background: var(--white);
+      color: var(--text);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      animation: fadeUp 0.6s ease 0.1s both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tabs */
+    .tab-row {
+      display: flex;
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 28px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--white);
+      color: var(--navy);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Views */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* Form elements */
+    .form-group { margin-bottom: 18px; }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--steel);
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: var(--navy-light);
+      box-shadow: 0 0 0 3px rgba(29, 63, 96, 0.1);
+    }
+
+    .form-group input::placeholder { color: #9ab; }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: var(--amber);
+      border: none;
+      border-radius: 8px;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 6px;
+    }
+
+    .btn-submit:hover {
+      background: var(--amber-dark);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Alert message */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 18px;
+      display: none;
+      font-weight: 600;
+    }
+    .alert.error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+    }
+    .alert.success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #15803d;
+    }
+
+    /* Footer note */
+    .back-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.7);
+      animation: fadeUp 0.6s ease 0.2s both;
+    }
+
+    .back-link a {
+      color: var(--amber);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .back-link a:hover { text-decoration: underline; }
+
+    /* Loading spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(15, 41, 66, 0.3);
+      border-top-color: var(--navy);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="portal-wrap">
+    <div class="portal-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <h1>SED Motors</h1>
+      <p>Admin Portal</p>
+    </div>
+
+    <div class="portal-card">
+      <div class="tab-row">
+        <button class="tab-btn active" id="loginTab" onclick="switchTab('login')">Sign In</button>
+        <button class="tab-btn" id="registerTab" onclick="switchTab('register')">Register Admin</button>
+      </div>
+
+      <!-- ── LOGIN ── -->
+      <div class="view active" id="loginView">
+        <div class="alert" id="loginAlert"></div>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label>Admin Email</label>
+            <input type="email" id="loginEmail" placeholder="you@sedmotors.com" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn-submit" id="loginBtn">Sign In to Dashboard</button>
+        </form>
+      </div>
+
+      <!-- ── REGISTER ── -->
+      <div class="view" id="registerView">
+        <div class="alert" id="registerAlert"></div>
+        <form id="registerForm" onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="regName" placeholder="e.g. Sasmit Tejan" required>
+          </div>
+          <div class="form-group">
+            <label>Admin Email</label>
+            <input type="email" id="regEmail" placeholder="you@sedmotors.com" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="regPassword" placeholder="Create a strong password" required minlength="6" autocomplete="new-password">
+          </div>
+          <button type="submit" class="btn-submit" id="registerBtn">Create Admin Account</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="back-link">
+      <a href="/index.html">← Back to Customer Site</a>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tab) {
+      document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+      document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+      document.getElementById('loginView').classList.toggle('active', tab === 'login');
+      document.getElementById('registerView').classList.toggle('active', tab === 'register');
+    }
+
+    function showAlert(id, msg, type) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.className = 'alert ' + type;
+      el.style.display = 'block';
+    }
+
+    function hideAlert(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function setLoading(btnId, loading) {
+      const btn = document.getElementById(btnId);
+      if (loading) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Please wait...';
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = btnId === 'loginBtn' ? 'Sign In to Dashboard' : 'Create Admin Account';
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      hideAlert('loginAlert');
+      setLoading('loginBtn', true);
+
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      const formData = new URLSearchParams();
+      formData.append('username', email);
+      formData.append('password', password);
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formData
+        });
+
+        if (res.ok) {
+          // Verify the account is actually ADMIN role
+          const meRes = await fetch('/api/auth/me');
+          if (meRes.ok) {
+            const user = await meRes.json();
+            if (user.role === 'ROLE_ADMIN') {
+              window.location.href = '/admin.html';
+            } else {
+              showAlert('loginAlert', 'Access denied. This account does not have Admin privileges.', 'error');
+              await fetch('/api/auth/logout', { method: 'POST' });
+            }
+          }
+        } else {
+          showAlert('loginAlert', 'Invalid email or password. Please try again.', 'error');
+        }
+      } catch (err) {
+        showAlert('loginAlert', 'Could not connect to server. Ensure the application is running.', 'error');
+      } finally {
+        setLoading('loginBtn', false);
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      hideAlert('registerAlert');
+      setLoading('registerBtn', true);
+
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+
+      try {
+        const res = await fetch('/api/auth/register-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password })
+        });
+
+        if (res.ok) {
+          showAlert('registerAlert', '✅ Admin account created! You can now sign in.', 'success');
+          document.getElementById('registerForm').reset();
+          // Pre-fill login fields and switch to login tab after 1.5s
+          setTimeout(() => {
+            document.getElementById('loginEmail').value = email;
+            switchTab('login');
+          }, 1500);
+        } else {
+          const errText = await res.text();
+          showAlert('registerAlert', errText || 'Registration failed. Email may already be in use.', 'error');
+        }
+      } catch (err) {
+        showAlert('registerAlert', 'Could not connect to server. Ensure the application is running.', 'error');
+      } finally {
+        setLoading('registerBtn', false);
+      }
+    }
+
+    // If already logged in as admin, redirect straight to dashboard
+    (async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const user = await res.json();
+          if (user.role === 'ROLE_ADMIN') {
+            window.location.href = '/admin.html';
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
+</body>
+</html>

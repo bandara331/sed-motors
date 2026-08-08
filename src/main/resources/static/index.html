@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SED Motors</title>
+  <style>
+    :root {
+      --navy: #0f2942;
+      --navy-light: #1d3f60;
+      --steel: #3b5a76;
+      --amber: #f0a23b;
+      --amber-dark: #d6872a;
+      --bg: #f7f8fa;
+      --white: #ffffff;
+      --text: #1c2733;
+      --muted: #5c6b7a;
+      --border: #e3e7ec;
+      --radius: 10px;
+      --shadow: 0 4px 18px rgba(15, 41, 66, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(240, 162, 59, 0.12);
+      color: var(--amber-dark);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+
+    /* MOCKUP NOTICE */
+    .mockup-banner {
+      background: var(--navy);
+      color: #cfe0ee;
+      text-align: center;
+      font-size: 13px;
+      padding: 8px 16px;
+    }
+
+    .mockup-banner strong {
+      color: var(--amber);
+    }
+
+    /* HEADER */
+    header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 21px;
+      color: var(--navy);
+      letter-spacing: -0.02em;
+    }
+
+    .logo .mark {
+      width: 38px;
+      height: 38px;
+      background: var(--navy);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo .mark svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .logo .sub {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: -2px;
+    }
+
+    nav.links {
+      display: flex;
+      gap: 30px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--steel);
+    }
+
+    nav.links a {
+      transition: color .15s;
+    }
+
+    nav.links a:hover {
+      color: var(--amber-dark);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .phone-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--navy);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14.5px;
+      border: none;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .btn-primary {
+      background: var(--amber);
+      color: var(--navy);
+    }
+
+    .btn-primary:hover {
+      background: var(--amber-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--white);
+      border: 1.5px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--white);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-dark {
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    .btn-dark:hover {
+      background: var(--navy-light);
+    }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+    }
+
+    .menu-toggle svg {
+      width: 26px;
+      height: 26px;
+      color: var(--navy);
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #16334f 55%, var(--navy-light) 100%);
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
+      padding: 90px 0 110px;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      right: -120px;
+      top: -120px;
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, rgba(240, 162, 59, 0.18), transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      left: -150px;
+      bottom: -180px;
+      width: 420px;
+      height: 420px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.06), transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 640px;
+    }
+
+    .hero h1 {
+      font-size: 46px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 span {
+      color: var(--amber);
+    }
+
+    .hero p.lead {
+      font-size: 17px;
+      color: #c4d4e2;
+      margin-bottom: 30px;
+      max-width: 520px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 38px;
+    }
+
+    .hero-tags {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hero-tag {
+      font-size: 13px;
+      color: #dce8f2;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      padding: 7px 14px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-tag svg {
+      width: 14px;
+      height: 14px;
+      color: var(--amber);
+    }
+
+    /* STATS */
+    .stats {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      text-align: center;
+      padding: 34px 0;
+    }
+
+    .stats-grid div {
+      padding: 0 10px;
+      border-right: 1px solid var(--border);
+    }
+
+    .stats-grid div:last-child {
+      border-right: none;
+    }
+
+    .stat-num {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* SECTION generic */
+    section {
+      padding: 80px 0;
+    }
+
+    .section-head {
+      max-width: 620px;
+      margin-bottom: 48px;
+    }
+
+    .section-head h2 {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      font-size: 15.5px;
+    }
+
+    /* SERVICES */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+
+    .service-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      box-shadow: var(--shadow);
+      transition: transform .15s, box-shadow .15s;
+    }
+
+    .service-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 26px rgba(15, 41, 66, 0.12);
+    }
+
+    .service-icon {
+      width: 46px;
+      height: 46px;
+      background: rgba(240, 162, 59, 0.13);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .service-icon svg {
+      width: 24px;
+      height: 24px;
+      color: var(--amber-dark);
+    }
+
+    .service-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .service-card p {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* PARTS */
+    .parts-section {
+      background: var(--white);
+    }
+
+    .parts-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--steel);
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .filter-btn.active {
+      background: var(--navy);
+      color: var(--white);
+      border-color: var(--navy);
+    }
+
+    .filter-btn:hover:not(.active) {
+      border-color: var(--steel);
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      padding: 10px 14px 10px 38px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      width: 230px;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--muted);
+    }
+
+    .parts-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .part-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      background: var(--bg);
+      transition: box-shadow .15s, transform .15s;
+    }
+
+    .part-card:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+
+    .part-cat {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--amber-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .part-thumb {
+      width: 100%;
+      height: 80px;
+      background: linear-gradient(135deg, #dde6ee, #eef2f6);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .part-thumb svg {
+      width: 30px;
+      height: 30px;
+      color: var(--steel);
+    }
+
+    .part-card h4 {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+
+    .part-card .desc {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      min-height: 32px;
+    }
+
+    .part-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .part-price {
+      font-weight: 800;
+      color: var(--navy);
+      font-size: 15px;
+    }
+
+    .enquire-btn {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--amber-dark);
+      background: rgba(240, 162, 59, 0.12);
+      border: none;
+      padding: 7px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .enquire-btn:hover {
+      background: rgba(240, 162, 59, 0.22);
+    }
+
+    .no-results {
+      display: none;
+      text-align: center;
+      color: var(--muted);
+      padding: 40px 0;
+      grid-column: 1/-1;
+    }
+
+    /* BOOKING */
+    .booking-section {
+      background: linear-gradient(135deg, #f2f6fa, #eef2f7);
+    }
+
+    .booking-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    .booking-info h2 {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 14px;
+    }
+
+    .booking-info p {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 24px;
+    }
+
+    .booking-points {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .booking-point {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .booking-point svg {
+      width: 20px;
+      height: 20px;
+      color: var(--amber-dark);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .booking-point div strong {
+      display: block;
+      color: var(--navy);
+      font-size: 14.5px;
+    }
+
+    .booking-point div span {
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    .booking-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      justify-content: center;
+      margin-top: 6px;
+    }
+
+    .confirm-msg {
+      display: none;
+      background: rgba(46, 160, 90, 0.1);
+      border: 1.5px solid rgba(46, 160, 90, 0.3);
+      color: #1f7a45;
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 14px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .confirm-msg svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ABOUT */
+    .about-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 54px;
+      align-items: center;
+    }
+
+    .about-visual {
+      background: linear-gradient(135deg, var(--navy), var(--navy-light));
+      border-radius: 16px;
+      padding: 40px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .about-visual::after {
+      content: '';
+      position: absolute;
+      right: -60px;
+      bottom: -60px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(240, 162, 59, 0.25), transparent 70%);
+      border-radius: 50%;
+    }
+
+    .about-visual .quote {
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.5;
+      position: relative;
+      z-index: 2;
+    }
+
+    .about-visual .quote::before {
+      content: '\201C';
+      font-size: 50px;
+      color: var(--amber);
+      display: block;
+      line-height: 0.5;
+      margin-bottom: 6px;
+    }
+
+    .about-text h2 {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 16px;
+    }
+
+    .about-text p {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 16px;
+    }
+
+    .about-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .about-list div {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 14.5px;
+      color: var(--text);
+    }
+
+    .about-list svg {
+      width: 18px;
+      height: 18px;
+      color: var(--amber-dark);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* CONTACT */
+    .contact-section {
+      background: var(--white);
+    }
+
+    .contact-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    .contact-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px;
+    }
+
+    .contact-item {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 22px;
+      align-items: flex-start;
+    }
+
+    .contact-item .ic {
+      width: 40px;
+      height: 40px;
+      background: rgba(15, 41, 66, 0.06);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .contact-item .ic svg {
+      width: 19px;
+      height: 19px;
+      color: var(--navy);
+    }
+
+    .contact-item h4 {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+
+    .contact-item p {
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    .map-placeholder {
+      border-radius: 14px;
+      background: repeating-linear-gradient(45deg, #e7ecf1, #e7ecf1 10px, #eef2f6 10px, #eef2f6 20px);
+      border: 1px solid var(--border);
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--steel);
+      position: relative;
+    }
+
+    .map-placeholder svg {
+      width: 34px;
+      height: 34px;
+      color: var(--amber-dark);
+      margin-bottom: 8px;
+    }
+
+    .map-placeholder span {
+      font-weight: 700;
+      font-size: 13.5px;
+    }
+
+    .map-placeholder small {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--navy);
+      color: #b9cadb;
+      padding: 54px 0 24px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+      gap: 36px;
+      padding-bottom: 36px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .footer-grid h4 {
+      color: white;
+      font-size: 14.5px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .footer-grid p {
+      font-size: 13.5px;
+      color: #9eb3c6;
+      margin-bottom: 14px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13.5px;
+    }
+
+    .footer-links a:hover {
+      color: var(--amber);
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 19px;
+      color: white;
+      margin-bottom: 14px;
+    }
+
+    .social-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .social-row a {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .social-row a:hover {
+      background: var(--amber);
+      color: var(--navy);
+    }
+
+    .social-row svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .copyline {
+      text-align: center;
+      font-size: 12.5px;
+      color: #84a0b8;
+      padding-top: 22px;
+    }
+
+    .copyline b {
+      color: var(--amber);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width:980px) {
+      nav.links {
+        display: none;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .stats-grid div:nth-child(2) {
+        border-right: none;
+      }
+
+      .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .parts-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .booking-wrap,
+      .about-wrap,
+      .contact-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .hero h1 {
+        font-size: 34px;
+      }
+    }
+
+    @media (max-width:560px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .parts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="mockup-banner">This is a <strong>mockup</strong> with placeholder content — services, parts, prices, and
+    contact details will be replaced with your real details.</div>
+
+  <header>
+    <div class="nav-wrap">
+      <div class="logo">
+        <div class="mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <circle cx="7" cy="17" r="2" />
+            <circle cx="17" cy="17" r="2" />
+            <path d="M5 17H3v-4l2-5h9l4 5h1a2 2 0 0 1 2 2v2h-2" />
+            <path d="M9 17h6" />
+          </svg>
+        </div>
+        <div>
+          SED MOTORS
+          <span class="sub">Repairs &amp; Spare Parts</span>
+        </div>
+      </div>
+      <nav class="links">
+        <a href="#services">Services</a>
+        <a href="#parts">Spare Parts</a>
+        <a href="#booking">Book a Repair</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+        <div class="nav-right" id="authContainer">
+          <div class="phone-pill">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+            </svg>
+            (675) XXX XXXX
+          </div>
+          <!-- Auth buttons will be injected here via JS -->
+          <button class="btn btn-primary" onclick="openLoginModal()">Login</button>
+        </div>
+        <button class="menu-toggle" onclick="document.querySelector('nav.links').classList.toggle('mobile-open')"
+          aria-label="Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero" style="padding-top:60px;padding-bottom:0;">
+    <div class="container">
+      <div class="hero-inner" style="padding-bottom:90px;">
+        <span class="badge">Port Moresby, NCD</span>
+        <h1>Reliable Vehicle Repairs &amp; <span>Genuine Spare Parts</span></h1>
+        <p class="lead">Full mechanical workshop and spare parts supply for individuals and businesses across Port
+          Moresby — honest diagnostics, quality workmanship, and parts you can trust.</p>
+        <div class="hero-actions">
+          <a href="#booking" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            Book a Repair
+          </a>
+          <a href="#parts" class="btn btn-outline">Browse Spare Parts</a>
+        </div>
+        <div class="hero-tags">
+          <span class="hero-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 6 9 17l-5-5" />
+            </svg> Individuals &amp; Fleets</span>
+          <span class="hero-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 6 9 17l-5-5" />
+            </svg> Boroko Workshop</span>
+          <span class="hero-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 6 9 17l-5-5" />
+            </svg> Experienced Mechanics</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stats">
+    <div class="container">
+      <div class="stats-grid">
+        <div>
+          <div class="stat-num">XX+</div>
+          <div class="stat-label">Years Experience</div>
+        </div>
+        <div>
+          <div class="stat-num">XXX+</div>
+          <div class="stat-label">Vehicles Serviced</div>
+        </div>
+        <div>
+          <div class="stat-num">XX+</div>
+          <div class="stat-label">Parts in Stock</div>
+        </div>
+        <div>
+          <div class="stat-num">XX+</div>
+          <div class="stat-label">Fleet Clients</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="services">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge">What We Do</span>
+        <h2>Our Services</h2>
+        <p>From everyday servicing to full panel and engine work — our workshop handles individual vehicles and business
+          fleets alike. <em>(Replace with your actual service list.)</em></p>
+      </div>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg></div>
+          <h3>General Mechanical Repairs</h3>
+          <p>Engine diagnostics, servicing, and repairs for all vehicle makes and models.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+              <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+            </svg></div>
+          <h3>Auto Electrical</h3>
+          <p>Battery, alternator, wiring, and air-conditioning electrical diagnostics and repair.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 21v-4a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v4" />
+              <path d="M7 13V7a5 5 0 0 1 10 0v6" />
+            </svg></div>
+          <h3>Panel &amp; Paint</h3>
+          <p>Dent repair, body panel replacement, and full spray-paint finishing.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg></div>
+          <h3>Servicing &amp; Maintenance</h3>
+          <p>Scheduled servicing, oil changes, and routine maintenance to keep vehicles roadworthy.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2 2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg></div>
+          <h3>Suspension &amp; Brakes</h3>
+          <p>Shock absorbers, brake pads, steering, and alignment work.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13" />
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+              <circle cx="5.5" cy="18.5" r="2.5" />
+              <circle cx="18.5" cy="18.5" r="2.5" />
+            </svg></div>
+          <h3>Fleet Maintenance Contracts</h3>
+          <p>Ongoing maintenance plans for business and government vehicle fleets.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="parts" class="parts-section">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge">Spare Parts</span>
+        <h2>Browse Our Parts Catalog</h2>
+        <p>Search or filter by category. Click "Enquire" to ask about price, availability, or compatibility for your
+          vehicle. <em>(Sample items shown — your real stock list will replace these.)</em></p>
+      </div>
+
+      <div class="parts-toolbar">
+        <div class="filter-group" id="filterGroup">
+          <button class="filter-btn active" data-cat="all">All</button>
+          <button class="filter-btn" data-cat="engine">Engine</button>
+          <button class="filter-btn" data-cat="electrical">Electrical</button>
+          <button class="filter-btn" data-cat="body">Body</button>
+          <button class="filter-btn" data-cat="suspension">Suspension</button>
+          <button class="filter-btn" data-cat="accessories">Accessories</button>
+        </div>
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input type="text" id="partSearch" placeholder="Search parts...">
+        </div>
+      </div>
+
+      <div class="parts-grid" id="partsGrid">
+        <!-- Parts injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <section id="booking" class="booking-section">
+    <div class="container">
+      <div class="booking-wrap">
+        <div class="booking-info">
+          <span class="badge">Book a Repair</span>
+          <h2>Schedule Your Vehicle Service</h2>
+          <p>Tell us about your vehicle and what it needs — our team will confirm your booking and give you an estimated
+            timeframe.</p>
+          <div class="booking-points">
+            <div class="booking-point">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              <div><strong>Fast confirmation</strong><span>We'll respond with a confirmed time slot.</span></div>
+            </div>
+            <div class="booking-point">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              <div><strong>Upfront estimates</strong><span>We explain costs before any work begins.</span></div>
+            </div>
+            <div class="booking-point">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              <div><strong>Individuals &amp; fleets welcome</strong><span>Single vehicle or full business fleet
+                  bookings.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="booking-card">
+          <!-- Auth Lock Overlay -->
+      <div id="bookingAuthLock" style="position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.85); backdrop-filter:blur(4px); z-index:10; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:12px; text-align:center; padding: 20px;">
+        <h3 style="margin-bottom:10px; color:var(--navy);">Login Required</h3>
+        <p style="margin-bottom:20px; color:var(--muted);">You must be logged in to book a service.</p>
+        <button type="button" class="btn btn-primary" onclick="openLoginModal()">Login or Register</button>
+      </div>
+
+      <form id="bookingForm" onsubmit="return submitBooking(event)" style="position:relative; z-index:1;">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" required placeholder="John Kila">
+              </div>
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" required placeholder="(675) XXX XXXX">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email (optional)</label>
+              <input type="email" placeholder="you@example.com">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Vehicle Make &amp; Model</label>
+                <input type="text" required placeholder="e.g. Toyota Hilux">
+              </div>
+              <div class="form-group">
+                <label>Service Needed</label>
+                <select required>
+                  <option value="">Select a service</option>
+                  <option>General Repair / Diagnostics</option>
+                  <option>Servicing &amp; Maintenance</option>
+                  <option>Auto Electrical</option>
+                  <option>Panel &amp; Paint</option>
+                  <option>Suspension &amp; Brakes</option>
+                  <option>Fleet Contract Enquiry</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Preferred Date</label>
+                <input type="date">
+              </div>
+              <div class="form-group">
+                <label>Preferred Time</label>
+                <input type="time">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Additional Details</label>
+              <textarea id="bookingMessage" placeholder="Describe the issue or request..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary submit-btn">Submit Booking Request</button>
+            <div class="confirm-msg" id="bookingConfirm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+              <span>Thanks! Your booking request has been received — we'll contact you shortly to confirm.</span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="container">
+      <div class="about-wrap">
+        <div class="about-visual">
+          <div class="quote">Quality workmanship, fair pricing, and parts you can rely on — that's the SED Motors
+            promise.</div>
+        </div>
+        <div class="about-text">
+          <span class="badge">About Us</span>
+          <h2>Your Trusted Workshop in Port Moresby</h2>
+          <p>SED Motors provides full-service vehicle repair and genuine spare parts to individuals and businesses
+            across Port Moresby. <em>(Replace with your real company story, history, and team background.)</em></p>
+          <p>Our workshop is based in Boroko, NCD, and our team brings years of hands-on experience across all major
+            vehicle makes and models.</p>
+          <div class="about-list">
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6 9 17l-5-5" />
+              </svg> Experienced, qualified mechanics</div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6 9 17l-5-5" />
+              </svg> Transparent quotes — no surprise costs</div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6 9 17l-5-5" />
+              </svg> Genuine &amp; quality spare parts in stock</div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6 9 17l-5-5" />
+              </svg> Serving individuals and business fleets</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact-section">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge">Get In Touch</span>
+        <h2>Visit or Contact Us</h2>
+        <p>Have a question about a repair, part, or fleet contract? Reach out — we're happy to help.</p>
+      </div>
+      <div class="contact-wrap">
+        <div class="contact-card">
+          <div class="contact-item">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg></div>
+            <div>
+              <h4>Workshop Address</h4>
+              <p>Boroko, National Capital District, Papua New Guinea<br><em>(Insert exact street address)</em></p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg></div>
+            <div>
+              <h4>Phone</h4>
+              <p>(675) XXX XXXX</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg></div>
+            <div>
+              <h4>Email</h4>
+              <p>info@sedmotors.com.pg</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg></div>
+            <div>
+              <h4>Opening Hours</h4>
+              <p>Mon–Fri: 8:00am – 5:00pm<br>Sat: 8:00am – 1:00pm<br>Sun: Closed</p>
+            </div>
+          </div>
+        </div>
+        <div class="map-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          <span>Map Embed Placeholder</span>
+          <small>Google Maps embed will go here, pinned to your Boroko address</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo">SED MOTORS</div>
+          <p>Vehicle repair and genuine spare parts for individuals and businesses in Port Moresby, Papua New Guinea.
+          </p>
+          <div class="social-row">
+            <a href="https://www.facebook.com/people/SED-Motors/61575920309863/" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <div class="footer-links">
+            <a href="#services">Services</a>
+            <a href="#parts">Spare Parts</a>
+            <a href="#booking">Book a Repair</a>
+            <a href="#about">About Us</a>
+          </div>
+        </div>
+        <div>
+          <h4>Services</h4>
+          <div class="footer-links">
+            <a href="#services">Mechanical Repairs</a>
+            <a href="#services">Auto Electrical</a>
+            <a href="#services">Panel &amp; Paint</a>
+            <a href="#services">Fleet Contracts</a>
+          </div>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <p>Boroko, NCD, Papua New Guinea</p>
+      </div>
+      <div class="copyline" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+        <span>© 2026 SED Motors. All rights reserved.</span>
+        <a href="/admin-login.html" style="font-size:12px; color:rgba(255,255,255,0.35); text-decoration:none; display:flex; align-items:center; gap:5px; transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.7)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Admin Portal
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- AUTH MODALS -->
+  <style>
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 41, 66, 0.7); backdrop-filter: blur(5px);
+      z-index: 1000; display: none; align-items: center; justify-content: center;
+    }
+    .modal-content {
+      background: var(--white); width: 100%; max-width: 400px;
+      padding: 30px; border-radius: 12px; position: relative;
+    }
+    .modal-close {
+      position: absolute; top: 15px; right: 15px; background: none; border: none;
+      font-size: 20px; cursor: pointer; color: var(--muted);
+    }
+    .modal-title { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 20px; text-align: center; }
+    .modal-form .form-group { margin-bottom: 15px; }
+    .modal-form label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--steel); }
+    .modal-form input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
+    .modal-form .btn { width: 100%; justify-content: center; margin-top: 10px; }
+    .google-btn {
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: #fff; border: 1px solid #ccc; padding: 10px; border-radius: 8px;
+      font-weight: 600; color: #444; cursor: pointer; text-decoration: none; margin-top: 15px;
+    }
+    .google-btn:hover { background: #f9f9f9; }
+    .auth-switch { text-align: center; font-size: 13px; margin-top: 15px; color: var(--muted); cursor: pointer; }
+    .auth-switch:hover { color: var(--navy); text-decoration: underline; }
+  </style>
+
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeAuthModal()">×</button>
+      
+      <!-- LOGIN VIEW -->
+      <div id="loginView">
+        <h3 class="modal-title">Welcome Back</h3>
+        <form class="modal-form" id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="loginEmail" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Sign In</button>
+        </form>
+        <div style="text-align:center; margin:15px 0; font-size:12px; color:var(--muted);">OR</div>
+        <a href="/oauth2/authorization/google" class="google-btn">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G" style="width:18px;">
+          Continue with Google
+        </a>
+        <div class="auth-switch" onclick="switchAuthView('register')">Don't have an account? Sign Up</div>
+      </div>
+
+      <!-- REGISTER VIEW -->
+      <div id="registerView" style="display:none;">
+        <h3 class="modal-title">Create Account</h3>
+        <form class="modal-form" id="registerForm" onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="regName" required>
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="regEmail" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="regPassword" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Sign Up</button>
+        </form>
+        <div class="auth-switch" onclick="switchAuthView('login')">Already have an account? Login</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+  <script>
+    const parts = [
+      { name: "Engine Oil Filter", cat: "engine", desc: "Fits most 4-cyl Japanese vehicles", price: "K45" },
+      { name: "Timing Belt Kit", cat: "engine", desc: "Complete kit with tensioner", price: "K320" },
+      { name: "Air Filter", cat: "engine", desc: "Standard replacement, dustproof", price: "K60" },
+      { name: "Spark Plug Set (4pc)", cat: "engine", desc: "Iridium-tip, long life", price: "K180" },
+      { name: "Alternator 12V", cat: "electrical", desc: "Suits Hilux, Hiace, Land Cruiser", price: "K850" },
+      { name: "Battery 12V 65Ah", cat: "electrical", desc: "Maintenance-free, 12 month warranty", price: "K620" },
+      { name: "Headlight Assembly", cat: "electrical", desc: "Left or right, halogen", price: "K410" },
+      { name: "Starter Motor", cat: "electrical", desc: "Reconditioned, tested", price: "K540" },
+      { name: "Front Bumper Bar", cat: "body", desc: "Primer-ready, fits popular utes", price: "K980" },
+      { name: "Side Mirror Assembly", cat: "body", desc: "Manual adjust, left or right", price: "K150" },
+      { name: "Windscreen Wiper Set", cat: "body", desc: "Driver + passenger pair", price: "K90" },
+      { name: "Door Handle (Exterior)", cat: "body", desc: "Universal fit, chrome finish", price: "K75" },
+      { name: "Shock Absorber (Front)", cat: "suspension", desc: "Heavy-duty, suits utes & 4x4", price: "K340" },
+      { name: "Brake Pads (Front Set)", cat: "suspension", desc: "Ceramic compound, low dust", price: "K220" },
+      { name: "Leaf Spring Set", cat: "suspension", desc: "Suits Hilux/Hiace, heavy load", price: "K650" },
+      { name: "Wheel Bearing Kit", cat: "suspension", desc: "Front, complete with seals", price: "K195" },
+      { name: "Roof Rack (Universal)", cat: "accessories", desc: "Steel, lockable, 100kg capacity", price: "K480" },
+      { name: "Tow Bar Kit", cat: "accessories", desc: "Bolt-on, suits popular utes", price: "K590" },
+      { name: "Car Mats (Set of 4)", cat: "accessories", desc: "Heavy-duty rubber, all-weather", price: "K130" },
+      { name: "Phone Mount / Dash Kit", cat: "accessories", desc: "Universal vehicle mount", price: "K55" }
+    ];
+
+    const iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>';
+    let activeCat = "all";
+    let searchTerm = "";
+
+    // ─── Render parts from static list ───────────────────────────────────────
+    function renderParts() {
+      const grid = document.getElementById('partsGrid');
+      const filtered = parts.filter(p => {
+        const matchesCat = activeCat === "all" || p.cat === activeCat;
+        const matchesSearch = p.name.toLowerCase().includes(searchTerm) || p.desc.toLowerCase().includes(searchTerm);
+        return matchesCat && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="no-results" style="display:block;">No parts match your search. Try a different term or category.</div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => `
+        <div class="part-card">
+          <div class="part-cat">${p.cat}</div>
+          <div class="part-thumb">${iconSvg}</div>
+          <h4>${p.name}</h4>
+          <div class="desc">${p.desc}</div>
+          <div class="part-bottom">
+            <span class="part-price">${p.price}</span>
+            <button class="enquire-btn" onclick="enquireAbout('${p.name.replace(/'/g, "\\'")}')">Enquire</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ─── Filter buttons ───────────────────────────────────────────────────────
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeCat = btn.dataset.cat;
+        renderParts();
+      });
+    });
+
+    // ─── Search input ─────────────────────────────────────────────────────────
+    document.getElementById('partSearch').addEventListener('input', (e) => {
+      searchTerm = e.target.value.toLowerCase();
+      renderParts();
+    });
+
+    // ─── Enquire shortcut ─────────────────────────────────────────────────────
+    function enquireAbout(partName) {
+      document.getElementById('booking').scrollIntoView({ behavior: 'smooth' });
+      const msgBox = document.getElementById('bookingMessage');
+      msgBox.value = `Hi, I'd like to enquire about: ${partName}. Could you confirm availability and price?`;
+      msgBox.focus();
+    }
+
+    // ─── Submit Booking → POST to API ─────────────────────────────────────────
+    async function submitBooking(event) {
+      event.preventDefault();
+      const form = event.target;
+      const inputs = form.querySelectorAll('input, select, textarea');
+      const data = {
+        customerName:   inputs[0].value,
+        phone:          inputs[1].value,
+        email:          inputs[2].value,
+        vehicleDetails: inputs[3].value,
+        serviceType:    inputs[4].value,
+        preferredDate:  inputs[5].value,
+        preferredTime:  inputs[6].value,
+        message:        inputs[7].value
+      };
+
+      try {
+        const res = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (res.ok) {
+          form.reset();
+          const confirmEl = document.getElementById('bookingConfirm');
+          confirmEl.style.display = 'flex';
+          setTimeout(() => { confirmEl.style.display = 'none'; }, 5000);
+        } else {
+          alert('Failed to submit booking. Please try again.');
+        }
+      } catch (err) {
+        console.error('Booking POST error:', err);
+        alert('Could not reach the server. Please ensure the Spring Boot app is running.');
+      }
+      return false;
+    }
+
+    // ─── Initial render ───────────────────────────────────────────────────────
+    renderParts();
+    checkAuthState();
+
+    // ─── AUTHENTICATION LOGIC ─────────────────────────────────────────────────
+    let currentUser = null;
+
+    async function checkAuthState() {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          currentUser = await res.json();
+          updateNavForUser(currentUser);
+        } else {
+          updateNavForGuest();
+        }
+      } catch (err) {
+        updateNavForGuest();
+      }
+    }
+
+    function updateNavForUser(user) {
+      document.getElementById('bookingAuthLock').style.display = 'none';
+      const authContainer = document.getElementById('authContainer');
+      
+      let adminLink = '';
+      if (user.role === 'ROLE_ADMIN') {
+        adminLink = `<a href="admin.html" class="btn btn-outline" style="color:var(--navy); border-color:var(--navy); padding:8px 15px;">Admin Dashboard</a>`;
+      }
+
+      authContainer.innerHTML = `
+        <div class="phone-pill" style="margin-right:15px;">Hi, ${user.name.split(' ')[0]}</div>
+        ${adminLink}
+        <button class="btn btn-dark" style="padding:8px 15px;" onclick="handleLogout()">Logout</button>
+        <a href="#booking" class="btn btn-primary" style="padding:8px 15px;">Book Repair</a>
+      `;
+
+      // Auto-fill booking form
+      const form = document.getElementById('bookingForm');
+      form.querySelectorAll('input')[0].value = user.name;
+      form.querySelectorAll('input')[2].value = user.email;
+    }
+
+    function updateNavForGuest() {
+      document.getElementById('bookingAuthLock').style.display = 'flex';
+      const authContainer = document.getElementById('authContainer');
+      authContainer.innerHTML = `
+        <div class="phone-pill">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+          (675) XXX XXXX
+        </div>
+        <button class="btn btn-outline" style="color:var(--navy); border-color:var(--navy);" onclick="openLoginModal()">Login</button>
+        <button class="btn btn-primary" onclick="openLoginModal()">Sign Up</button>
+      `;
+    }
+
+    function openLoginModal() {
+      document.getElementById('authModal').style.display = 'flex';
+      switchAuthView('login');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').style.display = 'none';
+    }
+
+    function switchAuthView(view) {
+      if (view === 'login') {
+        document.getElementById('loginView').style.display = 'block';
+        document.getElementById('registerView').style.display = 'none';
+      } else {
+        document.getElementById('loginView').style.display = 'none';
+        document.getElementById('registerView').style.display = 'block';
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      const formData = new URLSearchParams();
+      formData.append('username', email); // Spring Security expects 'username'
+      formData.append('password', password);
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formData
+        });
+        
+        if (res.ok) {
+          closeAuthModal();
+          checkAuthState();
+        } else {
+          alert('Invalid email or password.');
+        }
+      } catch (err) {
+        alert('Server error. Please try again.');
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('regName').value;
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password })
+        });
+        
+        if (res.ok) {
+          // Auto login after registration
+          document.getElementById('loginEmail').value = email;
+          document.getElementById('loginPassword').value = password;
+          handleLogin({ preventDefault: () => {} });
+        } else {
+          const err = await res.text();
+          alert(err);
+        }
+      } catch (err) {
+        alert('Server error. Please try again.');
+      }
+    }
+
+    async function handleLogout() {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      currentUser = null;
+      window.location.reload();
+    }
+  </script>
+</body>
+
+</html>
