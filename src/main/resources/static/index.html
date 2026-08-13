@@ -142,22 +142,50 @@
     /* ══════════════ HERO ══════════════ */
     .hero {
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 45%, var(--navy3) 100%);
+      background-size: 300% 300%;
+      animation: gradientBg 15s ease infinite;
       color: var(--white); position: relative; overflow: hidden;
       padding: 96px 0 80px; min-height: 580px; display: flex; align-items: center;
     }
+    @keyframes gradientBg {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
     .hero-bg {
       position: absolute; inset: 0; pointer-events: none;
     }
     .hero-orb {
       position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
     }
-    .hero-orb-1 { width:500px;height:500px;background:rgba(245,158,11,0.18);top:-100px;right:-80px; }
-    .hero-orb-2 { width:350px;height:350px;background:rgba(99,102,241,0.12);bottom:-100px;left:40%; }
+    .hero-orb-1 { 
+      width:500px;height:500px;background:rgba(245,158,11,0.18);top:-100px;right:-80px;
+      animation: float1 10s ease-in-out infinite alternate;
+    }
+    .hero-orb-2 { 
+      width:350px;height:350px;background:rgba(99,102,241,0.12);bottom:-100px;left:40%;
+      animation: float2 12s ease-in-out infinite alternate;
+    }
+    @keyframes float1 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-30px, 40px) scale(1.1); }
+    }
+    @keyframes float2 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, -30px) scale(1.15); }
+    }
+
     .hero-grid {
-      position: absolute; inset: 0;
+      position: absolute; inset: -100px;
       background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
                         linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
       background-size: 64px 64px;
+      animation: panGrid 20s linear infinite;
+    }
+    @keyframes panGrid {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-64px, -64px); }
     }
 
     .hero-inner { position: relative; z-index: 2; max-width: 680px; }
