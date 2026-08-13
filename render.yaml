@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: sed-motors
+    env: docker
+    region: singapore
+    plan: free
+    branch: main

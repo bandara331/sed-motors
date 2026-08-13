@@ -1,0 +1,8 @@
+.git
+target/
+.mvn/
+*.class
+*.jar
+*.war
+.idea
+.vscode
