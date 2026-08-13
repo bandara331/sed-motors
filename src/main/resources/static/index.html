@@ -644,6 +644,161 @@
     .auth-switch span { color: var(--amber2); font-weight: 700; }
     .auth-switch span:hover { text-decoration: underline; }
 
+    /* ══════════════ CHAT WIDGET ══════════════ */
+    #chat-widget {
+      position: fixed; bottom: 28px; right: 28px; z-index: 999;
+    }
+    #chat-fab {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: linear-gradient(135deg, #0f2942, #1a3d5c);
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 30px rgba(15,41,66,0.45); transition: all 0.3s; position: relative;
+    }
+    #chat-fab:hover { transform: scale(1.1); box-shadow: 0 12px 40px rgba(15,41,66,0.6); }
+    #chat-fab svg { width: 26px; height: 26px; color: white; }
+    #chat-fab-close { display: none; }
+    #chat-notif-dot {
+      position: absolute; top: 4px; right: 4px;
+      width: 14px; height: 14px; background: #ef4444;
+      border-radius: 50%; border: 2px solid white; display: none;
+      animation: pulseDot 1.5s ease infinite;
+    }
+    @keyframes pulseDot { 0%,100%{transform:scale(1);} 50%{transform:scale(1.3);} }
+
+    #chat-box {
+      display: none; position: absolute; bottom: 74px; right: 0;
+      width: 360px; background: #e5ddd5; border-radius: 16px;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.3);
+      overflow: hidden; animation: chatSlideUp 0.35s cubic-bezier(0.16,1,0.3,1) both;
+      flex-direction: column;
+    }
+    #chat-box.open { display: flex; }
+    @keyframes chatSlideUp {
+      from { opacity:0; transform:translateY(20px) scale(0.95); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    /* WhatsApp header */
+    #chat-header {
+      background: linear-gradient(135deg, #0f2942, #1a3d5c);
+      padding: 14px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    #chat-header-av {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: rgba(245,158,11,0.25); display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    #chat-header-info { flex: 1; }
+    #chat-header-info strong { display: block; color: white; font-size: 15px; font-weight: 700; }
+    #chat-header-status { font-size: 12px; color: rgba(255,255,255,0.6); }
+    #chat-close-btn {
+      background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.7);
+      padding: 4px; display: flex; align-items: center; justify-content: center;
+      transition: color 0.2s;
+    }
+    #chat-close-btn:hover { color: white; }
+
+    /* Chat thread list */
+    #chat-thread-list {
+      background: #f0f0f0; padding: 12px; display: flex;
+      flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;
+    }
+    #chat-thread-list h4 { font-size: 12px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 4px; }
+    .chat-thread-item {
+      background: white; border-radius: 10px; padding: 12px;
+      cursor: pointer; display: flex; align-items: center; gap: 10px;
+      border: 1.5px solid transparent; transition: all 0.2s;
+    }
+    .chat-thread-item:hover { border-color: #0f2942; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .chat-thread-ico { font-size: 20px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: #e8edf2; border-radius: 50%; flex-shrink: 0; }
+    .chat-thread-text strong { display: block; font-size: 13px; color: #1e293b; font-weight: 700; }
+    .chat-thread-text span { font-size: 12px; color: #64748b; }
+    .chat-thread-badge { margin-left: auto; background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 10px; display: none; }
+    .new-chat-btn {
+      background: linear-gradient(135deg, #f59e0b, #d97706); color: #1e293b;
+      border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 800;
+      cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .new-chat-btn:hover { transform: translateY(-1px); }
+
+    /* Chat messages */
+    #chat-messages-panel { display: none; flex-direction: column; }
+    #chat-messages-panel.open { display: flex; }
+    #chat-thread-back {
+      background: #075e54; border: none; cursor: pointer; color: rgba(255,255,255,0.8);
+      padding: 10px 14px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;
+      font-family: inherit; text-align: left; transition: background 0.2s;
+    }
+    #chat-thread-back:hover { background: #064c44; color: white; }
+    #chat-msgs-scroll {
+      flex: 1; min-height: 220px; max-height: 260px; overflow-y: auto;
+      padding: 12px; display: flex; flex-direction: column; gap: 6px;
+      background: #e5ddd5;
+    }
+    /* WhatsApp-style bubble background */
+    #chat-msgs-scroll::before {
+      content: ''; position: absolute; inset: 0; opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .chat-bubble {
+      max-width: 80%; padding: 8px 12px 6px; border-radius: 8px;
+      font-size: 13.5px; line-height: 1.5; position: relative; word-break: break-word;
+    }
+    .chat-bubble.from-customer {
+      background: #dcf8c6; align-self: flex-end;
+      border-top-right-radius: 2px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+    }
+    .chat-bubble.from-admin {
+      background: white; align-self: flex-start;
+      border-top-left-radius: 2px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+    }
+    .chat-bubble .cb-time {
+      font-size: 10px; color: #8e9eab; text-align: right; margin-top: 2px; display: block;
+    }
+    .chat-bubble.from-customer .cb-sender {
+      font-size: 11px; font-weight: 700; color: #075e54; margin-bottom: 2px; display: block;
+    }
+    .chat-bubble.from-admin .cb-sender {
+      font-size: 11px; font-weight: 700; color: #0f2942; margin-bottom: 2px; display: block;
+    }
+    .chat-typing { font-size: 12px; color: #666; padding: 4px 8px; font-style: italic; align-self: flex-start; }
+
+    /* New inquiry form inside chat */
+    #chat-new-inquiry { background: white; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    #chat-new-inquiry h4 { font-size: 14px; font-weight: 800; color: #0f2942; margin: 0; }
+    #chat-new-inquiry p { font-size: 12px; color: #64748b; margin: 0; }
+    .chat-field input, .chat-field textarea {
+      width: 100%; padding: 9px 12px; border: 1.5px solid #e2e8f0;
+      border-radius: 8px; font-size: 13px; font-family: inherit; outline: none;
+      transition: border-color 0.2s;
+    }
+    .chat-field input:focus, .chat-field textarea:focus { border-color: #0f2942; }
+    .chat-field textarea { resize: none; min-height: 70px; }
+    .chat-field label { display: block; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+
+    /* Chat input bar */
+    #chat-input-bar {
+      background: #f0f0f0; padding: 8px 10px; display: flex; gap: 8px;
+      align-items: flex-end; flex-shrink: 0; border-top: 1px solid #d0d0d0;
+    }
+    #chat-input {
+      flex: 1; border: none; border-radius: 22px; padding: 10px 16px;
+      font-size: 14px; font-family: inherit; outline: none; background: white;
+      max-height: 100px; resize: none; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    #chat-send-btn {
+      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+      background: #0f2942; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    #chat-send-btn:hover { background: #075e54; transform: scale(1.08); }
+    #chat-send-btn svg { width: 20px; height: 20px; color: white; }
+    #chat-login-prompt { background: #fff3cd; padding: 14px 16px; font-size: 13px; text-align: center; }
+    #chat-login-prompt button { background: #0f2942; color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 8px; font-family: inherit; }
+
     /* ══════════════ SCROLL REVEAL ══════════════ */
     .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
@@ -707,6 +862,7 @@
         <a href="#booking">Book Repair</a>
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
+        <a href="javascript:void(0)" onclick="openInquiryModal()">Ask a Question</a>
       </nav>
 
       <div class="nav-right" id="authContainer">
@@ -1214,6 +1370,118 @@
     </div>
   </div>
 
+  <!-- Customer Dashboard Modal -->
+  <div class="modal-overlay" id="mo-customer-dashboard" onclick="if(event.target===this)closeModal('mo-customer-dashboard')">
+    <div class="modal-box" style="max-width:800px;padding:32px;">
+      <button class="modal-close" onclick="closeModal('mo-customer-dashboard')" aria-label="Close">✕</button>
+      <div class="modal-head" style="margin-bottom:24px;">
+        <h3 style="font-size:24px;color:var(--navy);font-weight:900;">My Dashboard</h3>
+        <p style="color:var(--muted);font-size:14px;">Track your bookings and service history.</p>
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;text-align:left;">
+          <thead>
+            <tr style="background:var(--bg2);color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">
+              <th style="padding:12px 16px;border-bottom:1px solid var(--border);">Booking #</th>
+              <th style="padding:12px 16px;border-bottom:1px solid var(--border);">Service</th>
+              <th style="padding:12px 16px;border-bottom:1px solid var(--border);">Vehicle</th>
+              <th style="padding:12px 16px;border-bottom:1px solid var(--border);">Date / Time</th>
+              <th style="padding:12px 16px;border-bottom:1px solid var(--border);">Status</th>
+            </tr>
+          </thead>
+          <tbody id="my-bookings-list" style="font-size:14px;color:var(--text);">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ WHATSAPP-STYLE CHAT WIDGET ═══ -->
+  <div id="chat-widget">
+    <!-- FAB toggle button -->
+    <button id="chat-fab" onclick="toggleChat()" aria-label="Chat with SED Motors">
+      <span id="chat-fab-open">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </span>
+      <span id="chat-fab-close" style="display:none;font-size:22px;">✕</span>
+      <div id="chat-notif-dot"></div>
+    </button>
+
+    <!-- Chat box -->
+    <div id="chat-box">
+      <!-- Header -->
+      <div id="chat-header">
+        <div id="chat-header-av">🚗</div>
+        <div id="chat-header-info">
+          <strong>SED Motors Support</strong>
+          <div id="chat-header-status">Repairs &amp; Spare Parts · Port Moresby</div>
+        </div>
+        <button id="chat-close-btn" onclick="toggleChat()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Not logged in prompt -->
+      <div id="chat-login-prompt" style="display:none;">
+        <div style="font-weight:700;color:#1e293b;margin-bottom:4px;">Login to chat with us 💬</div>
+        <div style="color:#64748b;font-size:12px;">Create a free account to send us questions and see our replies anytime.</div>
+        <button onclick="openLoginModal();toggleChat();">Login / Sign Up</button>
+      </div>
+
+      <!-- Thread list (shown when logged in, no active thread) -->
+      <div id="chat-thread-list" style="display:none;">
+        <h4>Your Conversations</h4>
+        <div id="chat-threads-container"></div>
+        <button class="new-chat-btn" onclick="openNewChatForm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Ask a New Question
+        </button>
+      </div>
+
+      <!-- New inquiry form -->
+      <div id="chat-new-inquiry" style="display:none;">
+        <h4>✉ Start a New Conversation</h4>
+        <p>Fill in the details below and we'll reply right here.</p>
+        <div class="chat-field">
+          <label>Subject</label>
+          <input type="text" id="cn-subject" placeholder="What is your question about?">
+        </div>
+        <div class="chat-field">
+          <label>Your Message</label>
+          <textarea id="cn-message" placeholder="Type your question here..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="showThreadList()" style="flex:1;padding:9px;border:1.5px solid #e2e8f0;background:white;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;">← Back</button>
+          <button onclick="submitNewChat()" style="flex:2;padding:9px;background:#0f2942;color:white;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;">Send Message</button>
+        </div>
+      </div>
+
+      <!-- Messages panel -->
+      <div id="chat-messages-panel">
+        <button id="chat-thread-back" onclick="showThreadList()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to conversations
+        </button>
+        <div id="chat-msgs-scroll"></div>
+        <div id="chat-input-bar">
+          <textarea id="chat-input" rows="1" placeholder="Type a message..." onkeydown="chatInputKeydown(event)"></textarea>
+          <button id="chat-send-btn" onclick="sendChatMessage()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
   <script>
     /* ── Scroll reveal ── */
@@ -1362,12 +1630,12 @@
     }
 
     /* ── Auth ── */
-    let currentUser = null;
+    window.currentUser = null;
 
     async function checkAuthState() {
       try {
         const res = await fetch('/api/auth/me');
-        if (res.ok) { currentUser = await res.json(); updateNavForUser(currentUser); }
+        if (res.ok) { window.currentUser = await res.json(); updateNavForUser(window.currentUser); }
         else { updateNavForGuest(); }
       } catch (err) { updateNavForGuest(); }
     }
@@ -1375,13 +1643,15 @@
     function updateNavForUser(user) {
       document.getElementById('bookingAuthLock').style.display = 'none';
       const authContainer = document.getElementById('authContainer');
-      let adminLink = '';
+      let dashboardBtn = '';
       if (user.role === 'ROLE_ADMIN') {
-        adminLink = `<a href="admin.html" class="btn btn-ghost-dark" style="font-size:13px;padding:8px 14px;">Admin Dashboard</a>`;
+        dashboardBtn = `<a href="admin.html" class="btn btn-outline" style="border-color:var(--navy);color:var(--navy);padding:8px 16px;font-size:13px;">Admin Dashboard</a>`;
+      } else {
+        dashboardBtn = `<button class="btn btn-outline" style="border-color:var(--navy);color:var(--navy);padding:8px 16px;font-size:13px;" onclick="openDashboardModal()">My Dashboard</button>`;
       }
       authContainer.innerHTML = `
         <div class="phone-pill">Hi, ${user.name.split(' ')[0]} 👋</div>
-        ${adminLink}
+        ${dashboardBtn}
         <button class="btn btn-dark" style="padding:8px 16px;font-size:13px;" onclick="handleLogout()">Logout</button>
         <a href="#booking" class="btn btn-primary" style="padding:8px 16px;font-size:13px;">Book Repair</a>`;
       const form = document.getElementById('bookingForm');
@@ -1405,6 +1675,202 @@
       document.getElementById('authModal').classList.add('open');
       switchAuthView('login');
     }
+
+    /* ── CHAT WIDGET ENGINE ─────────────────────────────────── */
+    let chatOpen = false;
+    let activeChatInquiryId = null;
+    let chatPollInterval = null;
+    let chatLastMsgCount = 0;
+
+    function toggleChat() {
+      chatOpen = !chatOpen;
+      document.getElementById('chat-box').classList.toggle('open', chatOpen);
+      document.getElementById('chat-fab-open').style.display = chatOpen ? 'none' : 'flex';
+      document.getElementById('chat-fab-close').style.display = chatOpen ? 'inline' : 'none';
+      document.getElementById('chat-notif-dot').style.display = 'none';
+      if (chatOpen) initChat();
+      else stopChatPoll();
+    }
+
+    function openInquiryModal() { if (!chatOpen) toggleChat(); }
+
+    async function initChat() {
+      const lp = document.getElementById('chat-login-prompt');
+      const tl = document.getElementById('chat-thread-list');
+      if (!window.currentUser) {
+        lp.style.display = 'block'; tl.style.display = 'none';
+      } else {
+        lp.style.display = 'none';
+        await loadChatThreads();
+      }
+    }
+
+    async function loadChatThreads() {
+      const tl = document.getElementById('chat-thread-list');
+      const container = document.getElementById('chat-threads-container');
+      tl.style.display = 'flex';
+      document.getElementById('chat-new-inquiry').style.display = 'none';
+      document.getElementById('chat-messages-panel').classList.remove('open');
+      try {
+        const res = await fetch('/api/inquiries/my', { credentials: 'include' });
+        if (!res.ok) { container.innerHTML = '<div style="font-size:12px;color:#666;text-align:center;padding:8px;">No conversations yet.</div>'; return; }
+        const inquiries = await res.json();
+        if (!inquiries.length) {
+          container.innerHTML = '<div style="font-size:12px;color:#666;text-align:center;padding:8px;">No conversations yet. Start one below!</div>';
+        } else {
+          container.innerHTML = inquiries.map(inq => `
+            <div class="chat-thread-item" onclick="openChatThread(${inq.id})">
+              <div class="chat-thread-ico">💬</div>
+              <div class="chat-thread-text">
+                <strong>${escHtml(inq.subject)}</strong>
+                <span>${inq.status === 'PENDING' ? '⏳ Awaiting reply' : '✅ Replied'}</span>
+              </div>
+              ${inq.status === 'PENDING' ? '' : '<div class="chat-thread-badge" style="display:inline-block;background:#075e54;">NEW</div>'}
+            </div>
+          `).join('');
+        }
+        // Check for new admin replies - show notif dot on FAB
+        const hasNew = inquiries.some(i => i.status === 'RESPONDED');
+        document.getElementById('chat-notif-dot').style.display = hasNew ? 'block' : 'none';
+      } catch(e) { console.warn('loadChatThreads:', e); }
+    }
+
+    function showThreadList() {
+      stopChatPoll();
+      activeChatInquiryId = null;
+      document.getElementById('chat-thread-list').style.display = 'flex';
+      document.getElementById('chat-new-inquiry').style.display = 'none';
+      document.getElementById('chat-messages-panel').classList.remove('open');
+      loadChatThreads();
+    }
+
+    function openNewChatForm() {
+      document.getElementById('chat-thread-list').style.display = 'none';
+      document.getElementById('chat-new-inquiry').style.display = 'flex';
+      document.getElementById('cn-subject').value = '';
+      document.getElementById('cn-message').value = '';
+    }
+
+    async function submitNewChat() {
+      const subject = document.getElementById('cn-subject').value.trim();
+      const message = document.getElementById('cn-message').value.trim();
+      if (!subject || !message) { alert('Please fill in both the subject and message.'); return; }
+      const payload = {
+        customerName: window.currentUser.name,
+        email: window.currentUser.email,
+        phone: window.currentUser.phone || '',
+        subject, message
+      };
+      try {
+        const res = await fetch('/api/inquiries', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          const inq = await res.json();
+          openChatThread(inq.id);
+        } else { alert('Failed to send. Please try again.'); }
+      } catch(e) { alert('Connection error.'); }
+    }
+
+    async function openChatThread(inquiryId) {
+      activeChatInquiryId = inquiryId;
+      document.getElementById('chat-thread-list').style.display = 'none';
+      document.getElementById('chat-new-inquiry').style.display = 'none';
+      const panel = document.getElementById('chat-messages-panel');
+      panel.classList.add('open');
+      await renderChatMessages(inquiryId);
+      startChatPoll(inquiryId);
+    }
+
+    async function renderChatMessages(inquiryId) {
+      try {
+        const res = await fetch('/api/inquiries/' + inquiryId + '/messages', { credentials: 'include' });
+        if (!res.ok) return;
+        const msgs = await res.json();
+        if (msgs.length === chatLastMsgCount && chatLastMsgCount > 0) return; // no change
+        chatLastMsgCount = msgs.length;
+        const scroll = document.getElementById('chat-msgs-scroll');
+        const atBottom = scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 60;
+        scroll.innerHTML = msgs.length === 0
+          ? '<div style="text-align:center;font-size:12px;color:#888;padding:20px;">Start the conversation!</div>'
+          : msgs.map(m => {
+              const isAdmin = m.sender === 'ADMIN';
+              const timeStr = m.sentAt ? new Date(m.sentAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+              return `
+                <div class="chat-bubble ${isAdmin ? 'from-admin' : 'from-customer'}">
+                  <span class="cb-sender">${isAdmin ? '🚛 SED Motors' : '👤 ' + escHtml(window.currentUser?.name || 'You')}</span>
+                  ${escHtml(m.message)}
+                  <span class="cb-time">${timeStr}</span>
+                </div>`;
+            }).join('');
+        if (atBottom || chatLastMsgCount <= 3) scroll.scrollTop = scroll.scrollHeight;
+      } catch(e) { console.warn('renderChatMessages:', e); }
+    }
+
+    async function sendChatMessage() {
+      if (!activeChatInquiryId) return;
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      try {
+        const res = await fetch('/api/inquiries/' + activeChatInquiryId + '/message', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        if (res.ok) { chatLastMsgCount = 0; await renderChatMessages(activeChatInquiryId); }
+      } catch(e) { console.warn('sendChatMessage:', e); }
+    }
+
+    function chatInputKeydown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
+    }
+
+    function startChatPoll(inquiryId) {
+      stopChatPoll();
+      chatPollInterval = setInterval(() => renderChatMessages(inquiryId), 3000);
+    }
+
+    function stopChatPoll() {
+      if (chatPollInterval) { clearInterval(chatPollInterval); chatPollInterval = null; }
+    }
+
+    function escHtml(s) {
+      if (!s) return '';
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // Enquire about a part — opens chat and starts new conversation
+    function enquireAbout(partName) {
+      if (!chatOpen) toggleChat();
+      setTimeout(() => {
+        if (!window.currentUser) return;
+        openNewChatForm();
+        document.getElementById('cn-subject').value = 'Part Enquiry: ' + partName;
+        document.getElementById('cn-message').value = `Hi, I'd like to enquire about: ${partName}. Could you confirm availability and price?`;
+      }, 300);
+    }
+
+    // Poll for new replies when chat is closed (show notification dot)
+    setInterval(async () => {
+      if (chatOpen || !window.currentUser) return;
+      try {
+        const res = await fetch('/api/inquiries/my', { credentials: 'include' });
+        if (res.ok) {
+          const inqs = await res.json();
+          const hasNew = inqs.some(i => i.status === 'RESPONDED');
+          document.getElementById('chat-notif-dot').style.display = hasNew ? 'block' : 'none';
+        }
+      } catch(e) {}
+    }, 15000);
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('open');
+    }
+
     function closeAuthModal() {
       document.getElementById('authModal').classList.remove('open');
     }
@@ -1471,13 +1937,80 @@
 
     async function handleLogout() {
       await fetch('/api/auth/logout', { method: 'POST' });
-      currentUser = null;
+      window.currentUser = null;
       window.location.reload();
     }
+
+    /* ── Customer Dashboard ── */
+    async function openDashboardModal() {
+      document.getElementById('customerDashboardModal').classList.add('open');
+      const list = document.getElementById('customerBookingsList');
+      list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">Loading your bookings...</div>';
+      try {
+        const res = await fetch('/api/bookings/my');
+        if (res.ok) {
+          const bookings = await res.json();
+          if (bookings.length === 0) {
+            list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">You have no bookings yet.</div>';
+          } else {
+            list.innerHTML = bookings.map(b => {
+              let color = '#64748b'; // default gray
+              if (b.status === 'PENDING') color = '#f59e0b';
+              else if (b.status === 'CONFIRMED') color = '#0ea5e9';
+              else if (b.status === 'COMPLETED') color = '#10b981';
+              else if (b.status === 'REJECTED' || b.status === 'CANCELLED') color = '#ef4444';
+              
+              return `
+                <div style="border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-start; background: var(--bg);">
+                  <div>
+                    <h4 style="font-size: 15px; color: var(--navy); margin-bottom: 4px;">${b.serviceType}</h4>
+                    <div style="font-size: 13px; color: var(--muted); margin-bottom: 2px;">Date: ${b.preferredDate || 'TBD'} ${b.preferredTime || ''}</div>
+                    <div style="font-size: 13px; color: var(--muted);">Vehicle: ${b.vehicleDetails || '—'}</div>
+                  </div>
+                  <div style="background: ${color}20; color: ${color}; padding: 6px 12px; border-radius: 100px; font-size: 11px; font-weight: 800; border: 1px solid ${color}40; letter-spacing: 0.5px;">
+                    ${b.status}
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        } else {
+          list.innerHTML = '<div style="text-align:center;padding:40px;color:#ef4444;">Failed to load bookings.</div>';
+        }
+      } catch (e) {
+        list.innerHTML = '<div style="text-align:center;padding:40px;color:#ef4444;">Network error.</div>';
+      }
+    }
+    
+    function closeDashboardModal() {
+      document.getElementById('customerDashboardModal').classList.remove('open');
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('customerDashboardModal').addEventListener('click', e => {
+        if (e.target === document.getElementById('customerDashboardModal')) closeDashboardModal();
+      });
+    });
 
     /* ── Init ── */
     loadPartsData();
     checkAuthState();
   </script>
+
+  <!-- Customer Dashboard Modal HTML (Must be outside script tag) -->
+  <div class="modal-overlay" id="customerDashboardModal">
+    <div class="modal-box" style="max-width: 600px;">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeDashboardModal()">✕</button>
+        <div class="modal-title">My Dashboard</div>
+        <div class="modal-sub">Track your booking status here</div>
+      </div>
+      <div class="modal-body">
+        <div id="customerBookingsList" style="max-height: 400px; overflow-y: auto;">
+          <!-- Bookings will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

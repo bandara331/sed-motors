@@ -698,6 +698,13 @@
         </svg>
         <span>Audit &amp; Settings</span>
       </button>
+      <button class="ni" id="nav-inquiries" onclick="go('inquiries')">
+        <svg class="ni-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span>Inquiries</span>
+        <span id="inq-badge" style="display:none;background:var(--red);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px;margin-left:auto;">0</span>
+      </button>
 
       <div class="sb-label">Account</div>
       <a href="/index.html" class="ni">
@@ -741,6 +748,20 @@
         </div>
       </div>
       <div class="topbar-r" id="topbar-actions">
+        <!-- Notification Bell -->
+        <div style="position:relative;margin-right:12px;">
+          <button class="btn btn-icon" id="btn-notifications" onclick="toggleNotifications()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <div id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:10px;padding:2px 6px;">0</div>
+          </button>
+          <div id="notif-dropdown" style="display:none;position:absolute;top:100%;right:0;margin-top:12px;width:320px;background:var(--card);border:1px solid var(--bdr);border-radius:12px;box-shadow:var(--shh);z-index:100;overflow:hidden;">
+            <div style="padding:14px;border-bottom:1px solid var(--bdr);font-weight:700;font-size:13px;color:var(--t1);">Pending Bookings</div>
+            <div id="notif-list" style="max-height:300px;overflow-y:auto;padding:8px;"></div>
+          </div>
+        </div>
         <button class="btn btn-outline btn-sm" onclick="loadData()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="23 4 23 10 17 10" />
@@ -1283,6 +1304,40 @@
         </div>
       </div>
 
+      <!-- ════════════════ 8. INQUIRIES ════════════ -->
+      <div class="section" id="sec-inquiries">
+        <div class="card">
+          <div class="card-h">
+            <span class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              Customer Inquiries &amp; Communication
+            </span>
+            <button class="btn btn-outline btn-sm" onclick="loadInquiries()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" />
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+              </svg>
+              Refresh
+            </button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>Customer</th><th>Email</th><th>Phone</th>
+                  <th>Subject</th><th>Received</th><th>Status</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inq-tbody">
+                <tr><td colspan="8"><div class="empty"><div class="empty-ico">💬</div>Loading…</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 
@@ -1496,13 +1551,72 @@
     </div>
   </div>
 
+  <!-- Modal: Review Booking -->
+  <div class="mo" id="mo-review-booking">
+    <div class="mo-box" style="width:520px;">
+      <div class="mo-head">
+        <div class="mo-title">Review Booking</div>
+        <button class="mo-close" onclick="closeModal('mo-review-booking')">✕</button>
+      </div>
+      <div class="mo-body" id="mo-review-body"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Compose Email -->
+  <div class="mo" id="mo-email-compose">
+    <div class="mo-box" style="width:520px;">
+      <div class="mo-head">
+        <div class="mo-title">✉ Send Email to Customer</div>
+        <button class="mo-close" onclick="closeModal('mo-email-compose')">✕</button>
+      </div>
+      <div class="mo-body">
+        <input type="hidden" id="email-compose-bid">
+        <div class="fg"><label>To</label><input id="email-compose-to" readonly style="background:rgba(255,255,255,0.04);cursor:not-allowed;"></div>
+        <div class="fg"><label>Subject</label><input id="email-compose-subject" placeholder="e.g. Your vehicle is ready for collection"></div>
+        <div class="fg"><label>Message</label><textarea id="email-compose-body" style="min-height:140px;" placeholder="Type your message to the customer…"></textarea></div>
+        <div class="mo-actions">
+          <button class="btn btn-outline" onclick="closeModal('mo-email-compose')">Cancel</button>
+          <button class="btn btn-primary" onclick="sendComposedEmail()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send Email
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Inquiry Reply -->
+  <div class="mo" id="mo-inq-reply">
+    <div class="mo-box" style="width:520px;display:flex;flex-direction:column;height:80vh;max-height:700px;padding:0;">
+      <div class="mo-head" style="padding:20px 24px;border-bottom:1px solid var(--border);flex-shrink:0;">
+        <div class="mo-title" id="chat-admin-title">Customer Chat</div>
+        <button class="mo-close" onclick="closeAdminChat()">✕</button>
+      </div>
+      <div class="mo-body" style="flex:1;display:flex;flex-direction:column;padding:0;overflow:hidden;background:#e5ddd5;position:relative;">
+        <div style="position:absolute;inset:0;opacity:0.04;background-image:url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23000000\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');pointer-events:none;"></div>
+        
+        <div id="admin-chat-scroll" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;z-index:1;">
+          <!-- Messages will be injected here -->
+        </div>
+
+        <div style="background:#f0f0f0;padding:12px 16px;display:flex;gap:10px;align-items:flex-end;border-top:1px solid #d0d0d0;z-index:1;">
+          <input type="hidden" id="inq-reply-id">
+          <textarea id="inq-reply-body" rows="1" style="flex:1;border:none;border-radius:24px;padding:12px 16px;font-size:14px;color:#000;font-family:inherit;outline:none;background:white;resize:none;max-height:120px;box-shadow:0 1px 3px rgba(0,0,0,0.08);" placeholder="Type your reply..." onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();submitInquiryReply();}"></textarea>
+          <button onclick="submitInquiryReply()" style="width:48px;height:48px;border-radius:50%;background:#0f2942;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;box-shadow:0 4px 10px rgba(15,41,66,0.2);transition:all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='none'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast host -->
   <div class="toast-host" id="toast-host"></div>
 
   <!-- ═══════════════════ JAVASCRIPT ════════════════════════════ -->
   <script>
-    /* ── State ───────────────────────────────────────────────────── */
-    let partsData = [], bookingsData = [], workOrdersData = [], invoicesData = [], suppliersData = [];
+    const userRole = 'ROLE_ADMIN';
+    let partsData = [], bookingsData = [], workOrdersData = [], invoicesData = [], suppliersData = [], inquiriesData = [];
     let chartBook = null, chartInv = null;
     let currentSection = 'dashboard';
     let adminName = 'Admin', adminEmail = '';
@@ -1541,6 +1655,7 @@
         partsData = pr || []; bookingsData = br || []; workOrdersData = wr || [];
         invoicesData = ir || []; suppliersData = sr || [];
         renderAll();
+        loadInquiries(); // Also refresh inquiries
       } catch (e) {
         console.error('Load error:', e);
         toast('Load Error', 'Could not reach server. Check Spring Boot is running.', 'err');
@@ -1561,6 +1676,7 @@
       if (currentSection === 'parts') renderPartsTable();
       if (currentSection === 'invoices') renderInvTable();
       if (currentSection === 'suppliers') renderSupTable();
+      updateNotifications();
     }
 
     /* ── Dashboard ───────────────────────────────────────────────── */
@@ -1967,7 +2083,7 @@
       else toast('Error', 'Could not delete.', 'err');
     }
     function draftPO(id) {
-      const s = suppliersData.find(x => x.id === id);
+      const s = suppliersData.find(x => id === id);
       const low = partsData.filter(p => (p.stockQuantity || 0) < 5);
       const poHTML = `<!DOCTYPE html><html><head><title>Purchase Order</title>
     <style>body{font-family:Arial;margin:40px;color:#1e293b}h1{color:#0f172a}
@@ -1977,31 +2093,176 @@
     </style></head><body>
     <div onclick="window.print()" class="btn">🖨 Print / Save PDF</div>
     <h1>PURCHASE ORDER — SED Motors</h1>
-    <p><strong>Supplier:</strong> ${h(s?.name || 'N/A')}</p>
-    <p><strong>Contact:</strong> ${h(s?.contactPerson || '—')} | ${h(s?.phone || '—')} | ${h(s?.email || '—')}</p>
-    <table><thead><tr><th>Part Name</th><th>Category</th><th>Current Stock</th><th>Qty to Order</th></tr></thead>
-    <tbody>${low.map(p => `<tr><td>${h(p.name)}</td><td>${h(p.category || '—')}</td><td>${p.stockQuantity}</td><td>20</td></tr>`).join('') || '<tr><td colspan="4" style="text-align:center">No low-stock items.</td></tr>'}
-    </tbody></table></body></html>`;
+    <p><strong>To:</strong> ${h(s.name)}<br><strong>Contact:</strong> ${h(s.contactPerson || '—')}<br><strong>Phone:</strong> ${h(s.phone || '—')}</p>
+    <table><tr><th>Part Description</th><th>Qty Requested</th></tr>
+    ${low.length ? low.map(p => `<tr><td>${h(p.name)}</td><td>10</td></tr>`).join('') : '<tr><td colspan="2">No low stock items.</td></tr>'}
+    </table><p>Authorized by: ${h(adminName)}<br>Date: ${new Date().toLocaleDateString()}</p></body></html>`;
       const w = window.open('', '_blank'); w.document.write(poHTML); w.document.close();
     }
 
-    /* ── CRM ─────────────────────────────────────────────────────── */
-    async function crmSearch() {
-      const q = document.getElementById('crm-q').value.trim();
-      if (!q) { toast('Search', 'Enter a registration or customer name.', 'err'); return; }
-      const r = await fetch('/api/audit-logs/vehicle-history?registration=' + encodeURIComponent(q), { credentials: 'include' });
-      const res = document.getElementById('crm-results');
-      if (!r.ok) { res.innerHTML = '<div class="empty">Search failed.</div>'; return; }
-      const data = await r.json();
-      if (!data.length) { res.innerHTML = '<div class="empty"><div class="empty-ico">🚗</div>No records found for "' + h(q) + '".</div>'; return; }
-      res.innerHTML = `<div class="tbl-wrap"><table>
-    <thead><tr><th>#</th><th>Customer</th><th>Phone</th><th>Vehicle</th><th>Registration</th><th>Service</th><th>Date</th><th>Status</th></tr></thead>
-    <tbody>${data.map(b => `<tr>
-      <td>#${b.id}</td><td><strong>${h(b.customerName)}</strong></td><td>${h(b.phone || '—')}</td>
-      <td>${h(b.vehicleDetails || '—')}</td><td>${h(b.vehicleRegistration || '—')}</td>
-      <td>${h(b.serviceType || '—')}</td><td>${h(b.preferredDate || '—')}</td>
-      <td><span class="badge b-${b.status}">${b.status}</span></td>
-    </tr>`).join('')}</tbody></table></div>`;
+    /* ── Inquiries ─────────────────────────────────────────────────── */
+    let adminChatPollInterval = null;
+    let adminChatMsgCount = 0;
+
+    function closeAdminChat() {
+      closeModal('mo-inq-reply');
+      if (adminChatPollInterval) { clearInterval(adminChatPollInterval); adminChatPollInterval = null; }
+    }
+
+    async function loadInquiries() {
+      const data = await safeGet('/api/inquiries');
+      inquiriesData = data || [];
+      renderInqTable();
+      updateInqBadge();
+    }
+
+    function renderInqTable() {
+      const tb = document.getElementById('inq-tbody');
+      if (!tb) return;
+      if (!inquiriesData.length) {
+        tb.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-ico">💬</div>No inquiries yet.</div></td></tr>';
+        return;
+      }
+      tb.innerHTML = inquiriesData.map(inq => `
+        <tr>
+          <td style="color:var(--t3);font-size:11px;font-weight:600">#${inq.id}</td>
+          <td><strong>${h(inq.customerName)}</strong></td>
+          <td>${h(inq.email)}</td>
+          <td>${h(inq.phone || '—')}</td>
+          <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${h(inq.subject)}">${h(inq.subject)}</td>
+          <td style="font-size:11.5px;color:var(--t2)">${inq.createdAt ? inq.createdAt.replace('T',' ').substring(0,16) : '—'}</td>
+          <td><span class="badge ${inq.status === 'RESPONDED' ? 'b-green' : 'b-orange'}">${inq.status}</span></td>
+          <td>
+            <div style="display:flex;gap:5px">
+              <button class="btn btn-primary btn-sm" onclick="openInquiryReply(${inq.id})">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Reply
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="deleteInquiry(${inq.id})">Del</button>
+            </div>
+          </td>
+        </tr>`).join('');
+    }
+
+    function updateInqBadge() {
+      const pending = inquiriesData.filter(i => i.status === 'PENDING').length;
+      const badge = document.getElementById('inq-badge');
+      if (badge) {
+        badge.style.display = pending > 0 ? 'inline-block' : 'none';
+        badge.textContent = pending;
+      }
+    }
+
+    async function openInquiryReply(id) {
+      const inq = inquiriesData.find(x => x.id === id);
+      if (!inq) return;
+      document.getElementById('inq-reply-id').value = id;
+      document.getElementById('chat-admin-title').innerHTML = `Chat with ${h(inq.customerName)} <span style="font-size:12px;color:var(--t3);font-weight:400;display:block;">${h(inq.subject)}</span>`;
+      document.getElementById('inq-reply-body').value = '';
+      openModal('mo-inq-reply');
+      
+      adminChatMsgCount = 0;
+      await loadAdminChatMessages(id);
+      
+      if (adminChatPollInterval) clearInterval(adminChatPollInterval);
+      adminChatPollInterval = setInterval(() => loadAdminChatMessages(id), 3000);
+    }
+
+    async function loadAdminChatMessages(id) {
+      try {
+        const res = await fetch('/api/inquiries/' + id + '/messages', { credentials: 'include' });
+        if (!res.ok) return;
+        const msgs = await res.json();
+        if (msgs.length === adminChatMsgCount && adminChatMsgCount > 0) return;
+        adminChatMsgCount = msgs.length;
+        
+        const scroll = document.getElementById('admin-chat-scroll');
+        const atBottom = scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 60;
+        
+        if (msgs.length === 0) {
+          scroll.innerHTML = '<div style="text-align:center;font-size:13px;color:#888;margin-top:20px;">No messages yet.</div>';
+          return;
+        }
+
+        scroll.innerHTML = msgs.map(m => {
+          const isAdmin = m.sender === 'ADMIN';
+          const timeStr = m.sentAt ? new Date(m.sentAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+          const align = isAdmin ? 'align-self:flex-end;' : 'align-self:flex-start;';
+          const bg = isAdmin ? 'background:#dcf8c6;' : 'background:white;';
+          const radius = isAdmin ? 'border-radius:8px 2px 8px 8px;' : 'border-radius:2px 8px 8px 8px;';
+          const senderName = isAdmin ? 'You (Admin)' : 'Customer';
+          const senderColor = isAdmin ? 'color:#075e54;' : 'color:#0f2942;';
+          return `
+            <div style="max-width:85%;padding:10px 14px 6px;font-size:14px;color:#000;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,0.12);word-break:break-word;${align}${bg}${radius}">
+              <div style="font-size:11px;font-weight:700;margin-bottom:4px;${senderColor}">${senderName}</div>
+              <div style="color:#000;">${h(m.message)}</div>
+              <div style="font-size:10px;color:#8e9eab;text-align:right;margin-top:4px;">${timeStr}</div>
+            </div>`;
+        }).join('');
+
+        if (atBottom || adminChatMsgCount <= 5) scroll.scrollTop = scroll.scrollHeight;
+      } catch (e) { console.warn('Admin chat fetch error:', e); }
+    }
+
+    async function submitInquiryReply() {
+      const id = document.getElementById('inq-reply-id').value;
+      const reply = document.getElementById('inq-reply-body').value.trim();
+      if (!reply) return;
+      
+      document.getElementById('inq-reply-body').value = '';
+
+      try {
+        const res = await fetch('/api/inquiries/' + id + '/reply', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reply })
+        });
+        if (res.ok) {
+          adminChatMsgCount = 0;
+          await loadAdminChatMessages(id);
+          // Reload the inquiries list in background to update status badge
+          const data = await safeGet('/api/inquiries');
+          inquiriesData = data || [];
+          renderInqTable();
+          updateInqBadge();
+        } else {
+          toast('Error', 'Failed to send reply', 'err');
+          document.getElementById('inq-reply-body').value = reply;
+        }
+      } catch (e) {
+        toast('Error', 'Connection error', 'err');
+        document.getElementById('inq-reply-body').value = reply;
+      }
+    }
+
+    async function deleteInquiry(id) {
+      if (!confirm('Delete this inquiry?')) return;
+      const r = await fetch('/api/inquiries/' + id, { method: 'DELETE', credentials: 'include' });
+      if (r.ok) {
+        inquiriesData = inquiriesData.filter(i => i.id !== id);
+        renderInqTable(); updateInqBadge();
+        toast('Deleted', 'Inquiry removed.', 'ok');
+      } else toast('Error', 'Could not delete.', 'err');
+    }
+
+    /* ── Email Composer (for booking customers) ────────────────── */
+    function openEmailComposer(bookingId) {
+      const b = bookingsData.find(x => x.id === bookingId);
+      if (!b) return;
+      document.getElementById('email-compose-bid').value = bookingId;
+      document.getElementById('email-compose-to').value = b.email ? `${b.customerName} <${b.email}>` : 'No email on file';
+      document.getElementById('email-compose-subject').value = 'Regarding your service booking #' + bookingId;
+      document.getElementById('email-compose-body').value = '';
+      openModal('mo-email-compose');
+    }
+
+    async function sendComposedEmail() {
+      const id = document.getElementById('email-compose-bid').value;
+      const subject = document.getElementById('email-compose-subject').value.trim();
+      const message = document.getElementById('email-compose-body').value.trim();
+      if (!subject || !message) { toast('Error', 'Subject and message are required.', 'err'); return; }
+      const r = await apiPost('/api/bookings/' + id + '/send-email', { subject, message });
+      if (r) { closeModal('mo-email-compose'); toast('Email Sent!', 'Message delivered to customer.', 'ok'); }
     }
 
     /* ── Audit Log ───────────────────────────────────────────────── */
@@ -2023,7 +2284,8 @@
     const tabMeta = {
       dashboard: 'Dashboard Overview', workorders: 'Work Orders & Service Bays',
       parts: 'Parts & Inventory', invoices: 'Invoices & Billing',
-      suppliers: 'Suppliers & Purchase Orders', crm: 'Customer & Vehicle CRM', audit: 'Audit Logs & Settings'
+      suppliers: 'Suppliers & Purchase Orders', crm: 'Customer & Vehicle CRM',
+      audit: 'Audit Logs & Settings', inquiries: 'Customer Inquiries & Communication'
     };
 
     function go(tab) {
@@ -2039,6 +2301,7 @@
       if (tab === 'invoices') { populateWOSelect(); renderInvTable(); }
       if (tab === 'suppliers') renderSupTable();
       if (tab === 'audit') loadAudit();
+      if (tab === 'inquiries') loadInquiries();
     }
 
     function populateBookingSelect() {
@@ -2063,7 +2326,7 @@
         client.connect({}, () => {
           setLive(true);
           client.subscribe('/topic/admin-notifications', msg => {
-            try { const b = JSON.parse(msg.body); bookingsData.unshift(b); renderDashboard(); toast('New Booking!', b.customerName + ' — ' + b.serviceType, 'ok'); } catch (e) { }
+            try { const b = JSON.parse(msg.body); bookingsData.unshift(b); renderDashboard(); updateNotifications(); toast('New Booking!', b.customerName + ' — ' + b.serviceType, ''); } catch (e) { }
           });
         }, () => { setLive(false); setTimeout(connectWS, 5000); });
       } catch (e) { setLive(false); }
@@ -2078,6 +2341,87 @@
       if (txt) txt.textContent = on ? 'Live' : 'Reconnecting…';
       if (ws) { ws.textContent = on ? 'Connected' : 'Disconnected'; ws.className = 'badge ' + (on ? 'b-green' : 'b-red'); }
       if (wst) wst.textContent = on ? 'SockJS/STOMP active' : 'Attempting reconnect…';
+    }
+
+    /* ── Notifications ───────────────────────────────────────────── */
+    function toggleNotifications() {
+      const drop = document.getElementById('notif-dropdown');
+      drop.style.display = drop.style.display === 'none' ? 'block' : 'none';
+    }
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#btn-notifications') && !e.target.closest('#notif-dropdown')) {
+        const drop = document.getElementById('notif-dropdown');
+        if (drop) drop.style.display = 'none';
+      }
+    });
+
+    function updateNotifications() {
+      const pending = bookingsData.filter(b => b.status === 'PENDING').sort((a, b) => b.id - a.id);
+      const badge = document.getElementById('notif-badge');
+      if (pending.length > 0) {
+        badge.style.display = 'block'; badge.textContent = pending.length;
+      } else {
+        badge.style.display = 'none';
+      }
+      
+      const list = document.getElementById('notif-list');
+      if (pending.length === 0) {
+        list.innerHTML = '<div class="empty" style="padding:20px;font-size:12px;">No pending bookings.</div>';
+      } else {
+        list.innerHTML = pending.map(b => `
+          <div style="padding:12px;border-radius:8px;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='none'" onclick="openReviewBooking(${b.id})">
+            <div style="font-weight:700;font-size:13px;color:var(--t1);">${h(b.customerName)}</div>
+            <div style="font-size:11.5px;color:var(--t2);margin-top:2px;">${h(b.serviceType)} • ${h(b.preferredDate || 'No date')}</div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function openReviewBooking(id) {
+      document.getElementById('notif-dropdown').style.display = 'none';
+      const b = bookingsData.find(x => x.id === id);
+      if (!b) return;
+      const waNum = b.phone ? b.phone.replace(/\D/g, '') : '';
+      document.getElementById('mo-review-body').innerHTML = `
+        <div style="font-size:13px;color:var(--t1);margin-bottom:16px;line-height:1.6;background:rgba(255,255,255,0.03);padding:14px;border-radius:12px;border:1px solid var(--bdr);">
+          <p><span style="color:var(--t3);width:80px;display:inline-block">Customer:</span> <strong>${h(b.customerName)}</strong></p>
+          <p><span style="color:var(--t3);width:80px;display:inline-block">Phone:</span> ${h(b.phone)}</p>
+          <p><span style="color:var(--t3);width:80px;display:inline-block">Email:</span> ${h(b.email || '—')}</p>
+          <p><span style="color:var(--t3);width:80px;display:inline-block">Vehicle:</span> ${h(b.vehicleDetails)}</p>
+          <p><span style="color:var(--t3);width:80px;display:inline-block">Reg No:</span> ${h(b.vehicleRegistration || '—')}</p>
+          <p><span style="color:var(--t3);width:80px;display:inline-block">Service:</span> ${h(b.serviceType)}</p>
+          <p><span style="color:var(--t3);width:80px;display:inline-block">Date/Time:</span> ${h(b.preferredDate)} ${h(b.preferredTime || '')}</p>
+          <p style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr);"><strong style="color:var(--t3)">Message:</strong><br>${h(b.message || 'No additional message')}</p>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+          <a href="tel:${h(b.phone || '')}" class="btn btn-outline btn-sm" style="flex:1;justify-content:center;text-decoration:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.11 13.73 19.79 19.79 0 0 1 1.04 5.1 2 2 0 0 1 3 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 10a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Call Customer
+          </a>
+          ${waNum ? `<a href="https://wa.me/${waNum}" target="_blank" class="btn btn-sm" style="flex:1;justify-content:center;background:#25D366;color:#fff;text-decoration:none;">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="width:13px;height:13px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+            WhatsApp
+          </a>` : ''}
+          <button class="btn btn-sm" style="flex:1;justify-content:center;background:var(--blue);color:#fff;" onclick="closeModal('mo-review-booking');openEmailComposer(${b.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send Email
+          </button>
+        </div>
+        <div style="display:flex;gap:12px;">
+          <button class="btn btn-primary" style="flex:1;justify-content:center;padding:12px;" onclick="confirmBookingStatus(${b.id}, 'CONFIRMED')">Accept Booking</button>
+          <button class="btn btn-danger" style="flex:1;justify-content:center;padding:12px;" onclick="confirmBookingStatus(${b.id}, 'REJECTED')">Reject</button>
+        </div>
+      `;
+      openModal('mo-review-booking');
+    }
+
+    async function confirmBookingStatus(id, newStatus) {
+      const r = await apiPut('/api/bookings/' + id + '/status', { status: newStatus });
+      if (r) {
+        bookingsData = bookingsData.map(b => b.id === id ? r : b);
+        updateNotifications(); renderDashboard(); closeModal('mo-review-booking');
+        toast('Booking ' + (newStatus === 'CONFIRMED' ? 'Accepted' : 'Rejected'), 'Customer will be notified.', newStatus === 'CONFIRMED' ? 'ok' : 'err');
+      }
     }
 
     /* ── Modal Helpers ───────────────────────────────────────────── */

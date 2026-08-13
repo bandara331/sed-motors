@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByOrderByIdDesc();
+    List<Booking> findByEmailOrderByIdDesc(String email);
     List<Booking> findByVehicleRegistrationContainingIgnoreCase(String vehicleRegistration);
     List<Booking> findByCustomerNameContainingIgnoreCase(String customerName);
 }

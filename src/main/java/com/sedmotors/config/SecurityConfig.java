@@ -50,6 +50,12 @@ public class SecurityConfig {
                 .requestMatchers("/", "/index.html", "/admin-login.html", "/css/**", "/js/**",
                     "/api/parts", "/api/auth/register", "/api/auth/register-admin",
                     "/api/auth/login", "/api/auth/me").permitAll()
+                // Public: customer inquiry submission
+                .requestMatchers(HttpMethod.POST, "/api/inquiries").permitAll()
+                // Customer chat functionality
+                .requestMatchers(HttpMethod.GET, "/api/inquiries/my").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/inquiries/*/messages").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/inquiries/*/message").authenticated()
                 // Admin-only: pages + all ERP APIs
                 .requestMatchers(
                     "/admin.html",
@@ -57,7 +63,8 @@ public class SecurityConfig {
                     "/api/work-orders/**",
                     "/api/invoices/**",
                     "/api/suppliers/**",
-                    "/api/audit-logs/**"
+                    "/api/audit-logs/**",
+                    "/api/inquiries/**"
                 ).hasRole("ADMIN")
                 // Booking: ADMIN can GET/PUT, authenticated users can POST
                 .requestMatchers(org.springframework.http.HttpMethod.PUT,  "/api/bookings/**").hasRole("ADMIN")
