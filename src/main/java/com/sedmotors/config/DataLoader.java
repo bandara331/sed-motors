@@ -36,11 +36,11 @@ public class DataLoader implements CommandLineRunner {
         if (partRepository.count() == 0) {
             System.out.println("Seeding initial parts data...");
 
-            partRepository.save(new Part(null, "Toyota Hilux Oil Filter", "engine", "Genuine oil filter for 2015-2022 Toyota Hilux.", new BigDecimal("45.00"), 50));
-            partRepository.save(new Part(null, "Ford Ranger Brake Pads (Front)", "suspension", "Ceramic front brake pads for Ford Ranger.", new BigDecimal("120.00"), 30));
-            partRepository.save(new Part(null, "Nissan Patrol Alternator", "electrical", "12V 100A Alternator for Nissan Patrol GU/GQ.", new BigDecimal("350.00"), 10));
-            partRepository.save(new Part(null, "Mitsubishi Triton Headlight Assembly", "body", "Left-side headlamp assembly for Mitsubishi Triton MR.", new BigDecimal("280.00"), 15));
-            partRepository.save(new Part(null, "Heavy Duty Snorkel Kit", "accessories", "4x4 Snorkel kit for Toyota Landcruiser 70 series.", new BigDecimal("450.00"), 8));
+            partRepository.save(new Part(null, "Toyota Hilux Oil Filter", "engine", "Genuine oil filter for 2015-2022 Toyota Hilux.", new BigDecimal("45.00"), 50, null, 10));
+            partRepository.save(new Part(null, "Ford Ranger Brake Pads (Front)", "suspension", "Ceramic front brake pads for Ford Ranger.", new BigDecimal("120.00"), 30, null, 10));
+            partRepository.save(new Part(null, "Nissan Patrol Alternator", "electrical", "12V 100A Alternator for Nissan Patrol GU/GQ.", new BigDecimal("350.00"), 10, null, 10));
+            partRepository.save(new Part(null, "Mitsubishi Triton Headlight Assembly", "body", "Left-side headlamp assembly for Mitsubishi Triton MR.", new BigDecimal("280.00"), 15, null, 10));
+            partRepository.save(new Part(null, "Heavy Duty Snorkel Kit", "accessories", "4x4 Snorkel kit for Toyota Landcruiser 70 series.", new BigDecimal("450.00"), 8, null, 10));
 
             System.out.println("Data seeding completed.");
         }

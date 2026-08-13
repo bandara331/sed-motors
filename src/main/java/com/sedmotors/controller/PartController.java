@@ -38,6 +38,7 @@ public class PartController {
                     part.setDescription(partDetails.getDescription());
                     part.setPrice(partDetails.getPrice());
                     part.setStockQuantity(partDetails.getStockQuantity());
+                    part.setImageUrl(partDetails.getImageUrl());
                     return ResponseEntity.ok(partRepository.save(part));
                 })
                 .orElse(ResponseEntity.notFound().build());

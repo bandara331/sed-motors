@@ -31,4 +31,11 @@ public class Part {
 
     @Column(nullable = false)
     private Integer stockQuantity;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String imageUrl;
+
+    @Column(nullable = false)
+    private Integer reorderThreshold = 10;
 }
